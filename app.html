@@ -1,0 +1,282 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Green Step — App</title>
+  <meta name="description" content="Report polluted spots, clean them up and earn points.">
+  <meta name="theme-color" content="#f5f4ee">
+  <link rel="icon" href="assets/logo.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/app.css">
+</head>
+<body class="app-body">
+
+<header class="site-header">
+  <div class="wrap">
+    <a href="index.html" class="brand"><img src="assets/logo.svg" alt="">Green Step</a>
+    <nav class="app-tabs" aria-label="App">
+      <a href="#spots" data-tab="spots">Spots</a>
+      <a href="#report" data-tab="report">Report</a>
+      <a href="#wallet" data-tab="wallet">Wallet</a>
+    </nav>
+    <a href="#wallet" class="points-pill" title="Your points">
+      <span class="dot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 17h4v-4h4V9h4"/></svg></span>
+      <span class="mono" data-balance>0</span> pts
+    </a>
+  </div>
+</header>
+
+<div class="demo-note">
+  <div class="wrap">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
+    <span>Preview version: your spots and points are saved only in this browser, and no real money is sent yet.</span>
+  </div>
+</div>
+
+<main class="app-main">
+  <div class="wrap">
+
+    <!-- SPOTS -->
+    <section class="view" id="view-spots" hidden>
+      <div class="view-head">
+        <div>
+          <h1>Polluted <span class="serif">spots</span></h1>
+          <p>Places reported by the community. Pick one, clean it up, earn points.</p>
+        </div>
+        <a href="#report" class="btn btn-primary">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+          Report a spot
+        </a>
+      </div>
+      <div class="toolbar">
+        <div class="seg" role="tablist" aria-label="Filter spots">
+          <button class="active" data-filter="all">All <span class="count" data-count="all">0</span></button>
+          <button data-filter="open">Needs cleanup <span class="count" data-count="open">0</span></button>
+          <button data-filter="cleaned">Cleaned <span class="count" data-count="cleaned">0</span></button>
+        </div>
+        <label class="search">
+          <span class="sr-only">Search spots</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+          <input type="search" id="spot-search" placeholder="Search by place or description">
+        </label>
+      </div>
+      <div class="spots-grid" id="spots-grid"></div>
+      <div id="spots-empty"></div>
+    </section>
+
+    <!-- REPORT -->
+    <section class="view" id="view-report" hidden>
+      <div class="view-head">
+        <div>
+          <h1>Report a <span class="serif">polluted spot</span></h1>
+          <p>Takes about a minute. You'll get 10 points once it's on the map.</p>
+        </div>
+      </div>
+
+      <form class="form-grid" id="report-form" novalidate>
+        <div>
+          <div class="card">
+            <div class="field">
+              <span class="label">Photo</span>
+              <div class="drop" id="report-drop">
+                <input type="file" accept="image/*" id="report-photo" aria-label="Upload a photo">
+                <div>
+                  <div class="d-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8a2 2 0 0 1 2-2h2l1.5-2h5L16 6h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2Z"/><circle cx="12" cy="12.5" r="3.5"/></svg></div>
+                  <strong>Take or upload a photo</strong><br>
+                  <small>Drag a file here or click to browse. JPG, PNG or HEIC.</small>
+                </div>
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="r-title">What's there?</label>
+              <input class="input" id="r-title" maxlength="80" placeholder="e.g. Plastic bottles and bags along the river bank">
+            </div>
+
+            <div class="field">
+              <label for="r-place">Location</label>
+              <div class="row">
+                <input class="input" id="r-place" maxlength="80" placeholder="Street, park or landmark">
+                <button type="button" class="btn btn-ghost" id="r-geo" style="height:auto">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/><circle cx="12" cy="12" r="7"/></svg>
+                  <span>Use my location</span>
+                </button>
+              </div>
+              <span class="loc-status" id="r-geo-status"></span>
+            </div>
+
+            <div class="field">
+              <span class="label">How much waste?</span>
+              <div class="sizes">
+                <div class="size-opt"><input type="radio" name="size" id="s-small" value="small" checked><label for="s-small"><b>Small</b><span>Up to 2 bags</span><em>+50 pts to clean</em></label></div>
+                <div class="size-opt"><input type="radio" name="size" id="s-medium" value="medium"><label for="s-medium"><b>Medium</b><span>3–5 bags or bulky items</span><em>+120 pts to clean</em></label></div>
+                <div class="size-opt"><input type="radio" name="size" id="s-large" value="large"><label for="s-large"><b>Large</b><span>6+ bags or a dump site</span><em>+250 pts to clean</em></label></div>
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="r-note">Details <span class="opt">(optional)</span></label>
+              <textarea class="textarea" id="r-note" maxlength="400" placeholder="Anything that helps someone find or clean it: access, landmarks, type of waste"></textarea>
+            </div>
+
+            <div class="field">
+              <label class="check"><input type="checkbox" id="r-hazard"><div><b>Looks hazardous</b><span>Needles, chemicals, asbestos or anything unsafe to touch. It will be flagged for local services instead of volunteers.</span></div></label>
+              <label class="check"><input type="checkbox" id="r-claim"><div><b>I'll clean this myself</b><span>Claims the spot for you so others know it's taken.</span></div></label>
+            </div>
+
+            <div class="form-actions">
+              <span class="form-error" id="report-error" role="alert"></span>
+              <a href="#spots" class="btn btn-ghost">Cancel</a>
+              <button type="submit" class="btn btn-green">Submit report</button>
+            </div>
+          </div>
+        </div>
+
+        <aside>
+          <div class="card">
+            <h3>Tips for a useful report</h3>
+            <ul class="tips">
+              <li><span class="n">1</span><span>Step back so the photo shows the whole area, plus something recognisable like a bench, sign or tree.</span></li>
+              <li><span class="n">2</span><span>Use “Use my location” while you're standing at the spot. It makes the cleanup easier to verify.</span></li>
+              <li><span class="n">3</span><span>Be honest about the size. It decides how many points the cleanup is worth.</span></li>
+            </ul>
+            <div class="warn"><b>Stay safe.</b> Don't go onto private property, roads or unstable riverbanks to take a photo.</div>
+          </div>
+          <div class="card">
+            <h3>What happens next</h3>
+            <ul class="timeline" style="margin-top:16px">
+              <li class="done"><b>Reported</b><br>Your spot goes on the map, and you get +10 pts.</li>
+              <li><b>Claimed</b><br>You or another volunteer commits to clean it.</li>
+              <li><b>Cleaned</b><br>An “after” photo is added and the cleaner earns points.</li>
+            </ul>
+          </div>
+        </aside>
+      </form>
+    </section>
+
+    <!-- WALLET -->
+    <section class="view" id="view-wallet" hidden>
+      <div class="view-head">
+        <div>
+          <h1>Your <span class="serif">wallet</span></h1>
+          <p>Points you've earned, and what you've done with them.</p>
+        </div>
+      </div>
+
+      <div class="wallet-grid">
+        <div>
+          <div class="balance">
+            <svg class="bg" viewBox="0 0 400 400" fill="none" stroke="#d4ec7a" stroke-width="2" aria-hidden="true">
+              <circle cx="200" cy="200" r="180"/><circle cx="200" cy="200" r="140"/><circle cx="200" cy="200" r="100"/><circle cx="200" cy="200" r="60"/>
+            </svg>
+            <div class="lbl">Available balance</div>
+            <div class="big"><span data-balance>0</span><small>pts</small></div>
+            <div class="cash">Worth <b data-cash>$0.00</b> at 1,000 pts = $5.00</div>
+            <div class="stats">
+              <div><b data-stat="reports">0</b>Reports</div>
+              <div><b data-stat="cleanups">0</b>Cleanups</div>
+              <div><b data-stat="earned">0</b>Pts earned</div>
+            </div>
+          </div>
+
+          <div class="card" style="margin-top:20px">
+            <h3>Activity</h3>
+            <ul class="ledger" id="ledger"></ul>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="redeem-tabs" role="tablist">
+            <button class="active" data-redeem="cash" role="tab">Cash out</button>
+            <button data-redeem="gift" role="tab">Gift points</button>
+          </div>
+
+          <form id="cash-form" novalidate>
+            <div class="field">
+              <label for="c-amount">Points to cash out</label>
+              <input class="input mono" id="c-amount" type="number" min="1000" step="100" placeholder="1000">
+              <div class="quick" data-quick="c-amount">
+                <button type="button" data-v="1000">1,000</button>
+                <button type="button" data-v="2000">2,000</button>
+                <button type="button" data-v="5000">5,000</button>
+                <button type="button" data-v="max">All</button>
+              </div>
+              <span class="help">Minimum 1,000 points.</span>
+            </div>
+            <div class="field">
+              <label for="c-method">Send to</label>
+              <select class="select" id="c-method">
+                <option value="paypal">PayPal</option>
+                <option value="bank">Bank account</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="c-dest" id="c-dest-label">PayPal email</label>
+              <input class="input" id="c-dest" type="text" placeholder="you@example.com">
+            </div>
+            <div class="convert"><span>You'll receive</span><b data-convert="c-amount">$0.00</b></div>
+            <div class="form-actions">
+              <span class="form-error" id="cash-error" role="alert"></span>
+              <button type="submit" class="btn btn-green">Request payout</button>
+            </div>
+          </form>
+
+          <form id="gift-form" novalidate hidden>
+            <div class="field">
+              <label for="g-to">Recipient</label>
+              <input class="input" id="g-to" type="text" placeholder="Name, email or username">
+            </div>
+            <div class="field">
+              <label for="g-amount">Points to send</label>
+              <input class="input mono" id="g-amount" type="number" min="1" step="1" placeholder="100">
+              <div class="quick" data-quick="g-amount">
+                <button type="button" data-v="50">50</button>
+                <button type="button" data-v="100">100</button>
+                <button type="button" data-v="250">250</button>
+                <button type="button" data-v="max">All</button>
+              </div>
+            </div>
+            <div class="field">
+              <label for="g-msg">Message <span class="opt">(optional)</span></label>
+              <textarea class="textarea" id="g-msg" maxlength="200" placeholder="Thanks for helping out at the park!"></textarea>
+            </div>
+            <div class="convert"><span>Gift value</span><b data-convert="g-amount">$0.00</b></div>
+            <div class="form-actions">
+              <span class="form-error" id="gift-error" role="alert"></span>
+              <button type="submit" class="btn btn-green">Send gift</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </section>
+
+  </div>
+</main>
+
+<nav class="mobile-tabs" aria-label="App">
+  <a href="#spots" data-tab="spots"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21Z"/><circle cx="12" cy="9.5" r="2.5"/></svg>Spots</a>
+  <a href="#report" data-tab="report"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8a2 2 0 0 1 2-2h2l1.5-2h5L16 6h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2Z"/><circle cx="12" cy="12.5" r="3.5"/></svg>Report</a>
+  <a href="#wallet" data-tab="wallet"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M16 12.5h2M3 10h18"/></svg>Wallet</a>
+</nav>
+
+<div class="modal" id="modal" hidden>
+  <div class="modal-backdrop" data-close></div>
+  <div class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <button class="modal-close" data-close aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+    <div id="modal-content"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite">
+  <span class="t-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span>
+  <span id="toast-text"></span>
+</div>
+
+<script src="js/site.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

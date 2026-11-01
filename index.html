@@ -1,0 +1,388 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Green Step — Report pollution. Clean it up. Get rewarded.</title>
+  <meta name="description" content="Green Step lets anyone photograph a polluted spot, put it on the map, and clean it up. Verified cleanups earn points you can cash out or gift to someone.">
+  <meta name="theme-color" content="#f5f4ee">
+  <link rel="icon" href="assets/logo.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<header class="site-header" id="top">
+  <div class="wrap">
+    <a href="index.html" class="brand"><img src="assets/logo.svg" alt="">Green Step</a>
+    <nav class="nav" aria-label="Main">
+      <a href="#how">How it works</a>
+      <a href="#verification">Verification</a>
+      <a href="#rewards">Rewards</a>
+      <a href="#faq">FAQ</a>
+    </nav>
+    <div class="header-actions">
+      <a href="app.html#report" class="btn btn-ghost btn-sm">Report a spot</a>
+      <a href="app.html" class="btn btn-primary btn-sm">Open app</a>
+      <button class="menu-toggle" aria-label="Open menu" aria-expanded="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<main>
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="wrap hero-grid">
+      <div>
+        <span class="eyebrow">Community cleanup, rewarded</span>
+        <h1>Spot the mess. <span class="serif">Clean it up.</span> Get paid for it.</h1>
+        <p class="hero-lede">Green Step lets anyone photograph a polluted place and put it on the map. If you choose to clean it yourself, a before-and-after photo earns you points you can cash out or give to someone.</p>
+        <div class="hero-cta">
+          <a href="app.html#report" class="btn btn-primary">
+            Report a polluted spot
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          </a>
+          <a href="#how" class="btn btn-ghost">See how it works</a>
+        </div>
+        <div class="hero-meta">
+          <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Free to join</span>
+          <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Cleaning is always optional</span>
+          <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Cash out or gift your points</span>
+        </div>
+      </div>
+
+      <div class="stage" aria-hidden="true">
+        <div class="stage-map">
+          <svg viewBox="0 0 540 550" preserveAspectRatio="xMidYMid slice">
+            <rect width="540" height="550" fill="#e8e7dd"/>
+            <!-- parks -->
+            <path d="M-10 60 C80 40 150 70 190 130 C220 180 170 230 90 240 C30 248 -10 220 -10 200Z" fill="#dce4d1"/>
+            <path d="M330 360 C400 330 500 340 560 380 L560 560 L300 560 C290 480 290 400 330 360Z" fill="#dce4d1"/>
+            <!-- contours -->
+            <g fill="none" stroke="#d6d4c7" stroke-width="1">
+              <path d="M300 40 C360 20 450 40 480 100 C510 160 470 220 400 230 C330 240 280 200 270 150 C262 100 260 55 300 40Z"/>
+              <path d="M312 66 C362 50 436 66 458 112 C480 158 450 204 396 210 C342 216 302 186 294 146 C288 106 284 76 312 66Z"/>
+              <path d="M326 92 C364 80 418 92 434 124 C450 158 428 188 390 192 C352 196 324 176 318 148 C312 120 306 100 326 92Z"/>
+              <path d="M342 116 C368 108 398 116 408 136 C418 158 404 174 382 176 C360 178 342 166 340 150 C337 132 330 122 342 116Z"/>
+              <path d="M40 330 C100 300 190 320 210 380 C230 440 180 490 110 495 C40 500 0 460 -5 420"/>
+              <path d="M50 356 C96 334 166 350 182 394 C198 438 160 470 108 472 C56 474 24 446 20 418"/>
+              <path d="M62 380 C94 366 142 376 154 404 C166 432 140 452 106 452 C72 452 50 434 46 414"/>
+            </g>
+            <!-- river -->
+            <path d="M-20 300 C60 280 120 300 180 290 C260 276 300 230 360 236 C430 244 470 300 560 290" fill="none" stroke="#c6d6d0" stroke-width="30" stroke-linecap="round"/>
+            <path d="M-20 300 C60 280 120 300 180 290 C260 276 300 230 360 236 C430 244 470 300 560 290" fill="none" stroke="#d4e1dc" stroke-width="2" stroke-dasharray="2 10" stroke-linecap="round"/>
+            <!-- roads -->
+            <g fill="none" stroke="#fbfaf6" stroke-linecap="round">
+              <path d="M120 -10 C130 120 150 220 230 300 C300 370 310 460 300 560" stroke-width="12"/>
+              <path d="M-10 470 C120 450 220 420 300 420 C380 420 460 440 560 430" stroke-width="9"/>
+              <path d="M240 -10 C250 80 300 140 380 170 C440 192 500 190 560 180" stroke-width="7"/>
+              <path d="M400 560 C410 500 420 460 450 400" stroke-width="5"/>
+              <path d="M-10 150 C40 160 90 170 140 168" stroke-width="5"/>
+            </g>
+            <g fill="none" stroke="#e1dfd4" stroke-width="1">
+              <path d="M120 -10 C130 120 150 220 230 300 C300 370 310 460 300 560"/>
+            </g>
+          </svg>
+          <span class="pin" style="left:22%;top:23%"></span>
+          <span class="pin done" style="left:78%;top:70%"></span>
+          <span class="pin done" style="left:12%;top:60%"></span>
+          <span class="pin" style="left:62%;top:32%"></span>
+          <span class="pin pulse" style="left:44%;top:50%"></span>
+        </div>
+
+        <div class="float-card wallet-card">
+          <div class="wc-label">Your balance</div>
+          <div class="wc-value">2,340<small>pts</small></div>
+          <div class="wc-row"><span>Cash value</span><b>$11.70</b></div>
+        </div>
+
+        <div class="float-card report-card">
+          <div class="rc-top"><span class="mono">SPOT · RIVERSIDE PATH</span><span>0.4 km</span></div>
+          <h4>Plastic bags and bottles along the bank</h4>
+          <div class="rc-sub">Medium · about 3–5 bags of waste</div>
+          <div class="steps-mini"><div class="on"></div><div class="on"></div><div></div></div>
+          <div class="steps-labels"><span class="on">Reported</span><span class="on">Claimed</span><span>Cleaned</span></div>
+        </div>
+
+        <div class="float-card toast-card">
+          <span class="tc-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#111915" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span>
+          <span><b>+120 pts</b> for a verified cleanup</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- How it works -->
+  <section class="section" id="how" style="padding-top: 48px;">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <div>
+          <span class="eyebrow">How it works</span>
+          <h2>Three steps from <span class="serif">“someone should”</span> to done.</h2>
+        </div>
+        <p>You don't need a team, a permit or a plan. Reporting takes under a minute. Cleaning is up to you, and so is what you do with the points.</p>
+      </div>
+
+      <div class="steps reveal">
+        <article class="step">
+          <span class="step-num">01</span>
+          <div class="step-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8a2 2 0 0 1 2-2h2l1.5-2h5L16 6h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2Z"/><circle cx="12" cy="12.5" r="3.5"/></svg></div>
+          <h3>Snap and report</h3>
+          <p>Take a photo of the polluted spot, pin the location and say roughly how much waste is there. It goes on the shared map for anyone nearby to see.</p>
+          <span class="tag">+10 pts per report</span>
+        </article>
+        <article class="step">
+          <span class="step-num">02</span>
+          <div class="step-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4h10l-1 16H8L7 4Z"/><path d="M5 4h14M10 8v8M14 8v8"/></svg></div>
+          <h3>Clean it, if you want</h3>
+          <p>Claim any open spot, yours or someone else's. When you're done, add an “after” photo from the same place so the community can see the difference.</p>
+          <span class="tag opt">Optional</span>
+        </article>
+        <article class="step">
+          <span class="step-num">03</span>
+          <div class="step-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><path d="M14.5 9.5c-.5-.9-1.5-1.3-2.5-1.3-1.4 0-2.5.8-2.5 1.9 0 2.6 5 1.3 5 3.9 0 1.1-1.1 1.9-2.5 1.9-1 0-2-.4-2.5-1.3M12 6.5v1.7M12 15.8v1.7"/></svg></div>
+          <h3>Earn and redeem</h3>
+          <p>Verified cleanups earn points based on how much you cleared. Cash them out to your account or send them to a friend, family member or local cause.</p>
+          <span class="tag">50–250 pts per cleanup</span>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- Before / after -->
+  <section id="verification">
+    <div class="wrap">
+      <div class="ba reveal">
+        <div>
+          <span class="eyebrow">Proof, not promises</span>
+          <h2>Every point is backed by a <span class="serif">before and after.</span></h2>
+          <p>Points only go to real work. Each cleanup is checked against the original report before anything is paid out.</p>
+          <ul>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Both photos are taken at the same pinned location</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Neighbours can confirm or flag a cleanup</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Payouts are released only after review</li>
+          </ul>
+        </div>
+
+        <div class="compare" style="--pos:52%">
+          <svg viewBox="0 0 400 300" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+            <defs>
+              <g id="scene">
+                <rect width="400" height="300" fill="#dfe5dc"/>
+                <path d="M0 150 C60 120 120 135 180 125 C250 112 310 130 400 118 L400 190 L0 190Z" fill="#c5d3c0"/>
+                <path d="M0 165 C80 150 160 160 240 150 C300 143 350 150 400 146 L400 200 L0 200Z" fill="#b4c8ae"/>
+                <rect y="186" width="400" height="24" fill="#b8ccc8"/>
+                <rect y="186" width="400" height="2" fill="#a9bfba"/>
+                <path d="M0 206 C100 202 300 210 400 204 L400 300 L0 300Z" fill="#9db58a"/>
+                <path d="M120 300 C150 270 190 248 250 236 C290 228 330 226 400 226 L400 252 C340 252 300 256 270 264 C220 276 200 290 190 300Z" fill="#dacfb6"/>
+                <g>
+                  <rect x="58" y="140" width="6" height="74" fill="#6b5a45"/>
+                  <circle cx="61" cy="128" r="30" fill="#4c7655"/>
+                  <circle cx="44" cy="146" r="20" fill="#43704f"/>
+                  <circle cx="80" cy="144" r="22" fill="#557f5d"/>
+                  <rect x="330" y="150" width="5" height="62" fill="#6b5a45"/>
+                  <circle cx="332" cy="140" r="24" fill="#557f5d"/>
+                  <circle cx="348" cy="154" r="16" fill="#4c7655"/>
+                </g>
+                <g fill="#7a6449">
+                  <rect x="250" y="206" width="56" height="5" rx="1"/>
+                  <rect x="250" y="196" width="56" height="4" rx="1"/>
+                  <rect x="254" y="211" width="4" height="12"/>
+                  <rect x="298" y="211" width="4" height="12"/>
+                </g>
+              </g>
+            </defs>
+            <use href="#scene"/>
+            <!-- litter -->
+            <rect y="186" width="400" height="24" fill="#a39f86" opacity=".55"/>
+            <g>
+              <path d="M30 244 q8 -10 18 -2 q6 8 -4 12 q-12 4 -14 -10Z" fill="#f3f2ec"/>
+              <path d="M150 226 q10 -8 18 0 q4 10 -8 10 q-12 0 -10 -10Z" fill="#eeeeE6"/>
+              <path d="M84 266 q12 -12 22 -2 q4 12 -10 12 q-14 0 -12 -10Z" fill="#f3f2ec"/>
+              <rect x="110" y="236" width="18" height="6" rx="3" transform="rotate(-24 119 239)" fill="#7fb0c0"/>
+              <rect x="60" y="226" width="16" height="5" rx="2.5" transform="rotate(18 68 228)" fill="#7fb0c0"/>
+              <rect x="220" y="270" width="18" height="6" rx="3" transform="rotate(40 229 273)" fill="#89b7a4"/>
+              <rect x="280" y="232" width="9" height="6" rx="1" fill="#c2452f"/>
+              <rect x="176" y="258" width="9" height="6" rx="1" transform="rotate(30 180 261)" fill="#c2452f"/>
+              <rect x="40" y="276" width="9" height="6" rx="1" transform="rotate(-20 44 279)" fill="#d6a13a"/>
+              <rect x="190" y="214" width="24" height="16" rx="1" transform="rotate(-8 202 222)" fill="#c9a26b"/>
+              <rect x="340" y="268" width="22" height="14" rx="1" transform="rotate(12 351 275)" fill="#c9a26b"/>
+              <path d="M318 248 q8 -8 16 0 q2 8 -8 8 q-10 0 -8 -8Z" fill="#f3f2ec"/>
+              <rect x="134" y="192" width="14" height="5" rx="2.5" fill="#7fb0c0"/>
+              <rect x="300" y="194" width="12" height="5" rx="2.5" fill="#f3f2ec"/>
+              <rect x="40" y="196" width="10" height="4" rx="2" fill="#c2452f"/>
+              <rect x="248" y="286" width="16" height="5" rx="2.5" transform="rotate(-12 256 288)" fill="#7fb0c0"/>
+            </g>
+          </svg>
+          <svg class="after" viewBox="0 0 400 300" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+            <use href="#scene"/>
+            <g>
+              <path d="M312 230 q-10 -2 -10 -14 q0 -12 12 -12 l-2 -6 h8 l-2 6 q12 0 12 12 q0 12 -10 14Z" fill="#2b3a31"/>
+              <path d="M330 232 q-9 -2 -9 -12 q0 -10 10 -10 l-2 -5 h7 l-2 5 q10 0 10 10 q0 10 -9 12Z" fill="#33463a"/>
+            </g>
+          </svg>
+          <span class="handle"></span>
+          <span class="lbl l">Before</span>
+          <span class="lbl r">After</span>
+          <input type="range" min="0" max="100" value="52" aria-label="Drag to compare before and after">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Rewards -->
+  <section class="section" id="rewards">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <div>
+          <span class="eyebrow">Points &amp; rewards</span>
+          <h2>Clear rules. <span class="serif">Real value.</span></h2>
+        </div>
+        <p>Points are set by how much work a cleanup takes, so the rules are easy to follow. The exchange rate stays fixed and is shown before you redeem.</p>
+      </div>
+
+      <div class="rewards reveal">
+        <div class="panel">
+          <h3>How you earn</h3>
+          <p class="panel-sub">Points are added once the report or cleanup is verified.</p>
+          <table class="earn-table">
+            <tr><td><span class="what">Report a polluted spot</span><span class="hint">Photo + location of a spot that isn't on the map yet</span></td><td class="pts">+10</td></tr>
+            <tr><td><span class="what">Small cleanup</span><span class="hint">Up to 2 bags, about 30 minutes of work</span></td><td class="pts">+50</td></tr>
+            <tr><td><span class="what">Medium cleanup</span><span class="hint">3–5 bags or bulky items, about 1–2 hours</span></td><td class="pts">+120</td></tr>
+            <tr><td><span class="what">Large cleanup</span><span class="hint">6+ bags, a dumping site or a long stretch of shore</span></td><td class="pts">+250</td></tr>
+          </table>
+        </div>
+
+        <div class="panel">
+          <h3>How you redeem</h3>
+          <p class="panel-sub">Your points, your choice.</p>
+          <div class="spend">
+            <div class="spend-item">
+              <span class="si-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18M7 15h3"/></svg></span>
+              <div><h4>Cash out</h4><p>Send money to your bank or PayPal account. The minimum is 1,000 points.</p></div>
+            </div>
+            <div class="spend-item">
+              <span class="si-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="9" width="16" height="11" rx="1.5"/><path d="M3 9h18M12 9v11M12 9c-1.5-3-5-4-5-1.5S10 9 12 9Zm0 0c1.5-3 5-4 5-1.5S14 9 12 9Z"/></svg></span>
+              <div><h4>Gift to someone</h4><p>Send any number of points to a friend, a family member or a local group, with a note.</p></div>
+            </div>
+          </div>
+          <div class="rate"><span class="mono">EXCHANGE RATE</span><b>1,000 pts = $5.00</b></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Principles -->
+  <section>
+    <div class="wrap">
+      <div class="principles reveal">
+        <div class="principle"><h4>Anyone can start</h4><p>Reporting needs nothing but a phone. No gear and no group required.</p></div>
+        <div class="principle"><h4>Cleaning is a choice</h4><p>Reporting is already useful. If you clean, that's a bonus, and it pays.</p></div>
+        <div class="principle"><h4>Safety first</h4><p>Skip anything hazardous, like needles, chemicals or asbestos. Just report it, and it will be passed on to local services.</p></div>
+        <div class="principle"><h4>Open by default</h4><p>Every spot and cleanup is public, so neighbours can see what changed.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="section" id="faq">
+    <div class="wrap faq-grid">
+      <div class="reveal">
+        <span class="eyebrow">FAQ</span>
+        <h2>Questions, <span class="serif">answered.</span></h2>
+        <p>Still have one? Write to us at <a href="mailto:hello@greenstep.app">hello@greenstep.app</a>.</p>
+      </div>
+      <div class="faq reveal">
+        <details open>
+          <summary>Do I have to clean a spot to report it?</summary>
+          <p>No. Reporting is useful by itself. It shows volunteers and local services where help is needed. You earn 10 points for each new spot you report.</p>
+        </details>
+        <details>
+          <summary>How are cleanups verified?</summary>
+          <p>Your “after” photo is compared with the original report: same place, waste removed. Other users nearby can confirm it or flag it. Points become withdrawable once the cleanup passes review.</p>
+        </details>
+        <details>
+          <summary>What can I do with my points?</summary>
+          <p>Cash them out at 1,000 points = $5.00 (minimum 1,000 points), or gift any amount to another person. Gifts arrive in their Green Step wallet right away.</p>
+        </details>
+        <details>
+          <summary>What should I bring to a cleanup?</summary>
+          <p>Gloves, sturdy bags and closed shoes cover most jobs. Don't touch sharp objects, chemicals or anything that looks dangerous. Mark the spot as hazardous instead.</p>
+        </details>
+        <details>
+          <summary>Where does the reward money come from?</summary>
+          <p>Rewards are paid for by partners: local councils, businesses and sponsors who want cleaner neighbourhoods and pay for verified results, not promises.</p>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section>
+    <div class="wrap">
+      <div class="cta reveal">
+        <svg class="cta-lines" viewBox="0 0 400 400" fill="none" stroke="#d4ec7a" stroke-width="1.2" aria-hidden="true">
+          <path d="M200 40 C290 40 360 110 360 200 C360 290 290 360 200 360 C110 360 40 290 40 200 C40 110 110 40 200 40Z"/>
+          <path d="M205 75 C275 72 330 130 328 200 C326 268 272 326 202 324 C132 322 76 270 76 200 C76 130 135 78 205 75Z"/>
+          <path d="M208 110 C258 106 296 150 294 200 C292 248 254 290 204 288 C154 286 112 250 112 200 C112 150 158 114 208 110Z"/>
+          <path d="M210 145 C240 142 262 170 260 200 C258 228 236 254 206 252 C176 250 148 228 148 200 C148 170 180 148 210 145Z"/>
+          <path d="M210 178 C222 176 232 188 232 200 C232 212 222 222 210 222 C198 222 186 212 186 200 C186 188 198 180 210 178Z"/>
+        </svg>
+        <h2>The next cleanup starts with <span class="serif">one photo.</span></h2>
+        <p>Report the first spot you pass today. It's on the map in under a minute.</p>
+        <div class="hero-cta">
+          <a href="app.html#report" class="btn btn-light">Report a polluted spot</a>
+          <a href="app.html" class="btn btn-ghost">Browse open spots</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="footer-grid">
+      <div>
+        <a href="index.html" class="brand"><img src="assets/logo.svg" alt="">Green Step</a>
+        <p>A community map of polluted places, and a reward for the people who clean them up.</p>
+      </div>
+      <div>
+        <h5>Product</h5>
+        <ul>
+          <li><a href="app.html">Open spots</a></li>
+          <li><a href="app.html#report">Report a spot</a></li>
+          <li><a href="app.html#wallet">Wallet</a></li>
+        </ul>
+      </div>
+      <div>
+        <h5>Learn</h5>
+        <ul>
+          <li><a href="#how">How it works</a></li>
+          <li><a href="#rewards">Rewards</a></li>
+          <li><a href="#faq">FAQ</a></li>
+        </ul>
+      </div>
+      <div>
+        <h5>Contact</h5>
+        <ul>
+          <li><a href="mailto:hello@greenstep.app">hello@greenstep.app</a></li>
+          <li><a href="https://github.com/lmshox/green-step">GitHub</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© <span id="year">2026</span> Green Step</span>
+      <a href="#top" style="text-decoration:none">Back to top ↑</a>
+    </div>
+  </div>
+</footer>
+
+<script src="js/site.js"></script>
+</body>
+</html>
