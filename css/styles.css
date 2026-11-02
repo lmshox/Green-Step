@@ -408,3 +408,18 @@ html[lang="ru"] .hero h1 { font-size: clamp(40px, 5.2vw, 68px); }
   .lang svg { display: none; }
   .header-actions { gap: 8px; }
 }
+
+/* ---------- Fair play ---------- */
+
+.rules { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.rule { background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 26px; }
+.rule-icon { width: 44px; height: 44px; border-radius: 12px; background: var(--green-soft); color: var(--green); display: grid; place-items: center; margin-bottom: 20px; }
+.rule-icon svg { width: 21px; height: 21px; }
+.rule h4 { font-size: 18px; letter-spacing: -0.01em; margin-bottom: 8px; }
+.rule p { color: var(--ink-2); font-size: 15px; }
+.penalty { display: flex; align-items: center; gap: 14px; margin-top: 16px; padding: 18px 22px; border-radius: 16px; background: var(--rust-soft); color: #7c3418; }
+.penalty svg { flex: none; width: 22px; height: 22px; }
+.penalty p { font-size: 16px; }
+.penalty b { font-weight: 600; }
+@media (max-width: 960px) { .rules { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 600px) { .rules { grid-template-columns: 1fr; } .rule { padding: 22px; } }

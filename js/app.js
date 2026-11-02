@@ -115,55 +115,193 @@
     return l.label || ""; // entries saved by the first version
   }
 
-  /* ---------------- Images ---------------- */
+  /* ---------------- Camera: live photos only, with GPS ---------------- */
+  // Photos can only come from the live camera inside the page (no file picker,
+  // no gallery). Each photo is stamped with time and GPS location.
 
-  // Resize to keep localStorage usage small.
-  function readImage(file, max = 1100, quality = 0.78) {
-    return new Promise((resolve, reject) => {
-      if (!file || !file.type.startsWith("image/")) return reject(new Error(t("not_image")));
-      const reader = new FileReader();
-      reader.onerror = () => reject(new Error(t("read_fail")));
-      reader.onload = () => {
-        const img = new Image();
-        img.onerror = () => reject(new Error(t("bad_format")));
-        img.onload = () => {
-          const scale = Math.min(1, max / Math.max(img.width, img.height));
-          const c = document.createElement("canvas");
-          c.width = Math.round(img.width * scale);
-          c.height = Math.round(img.height * scale);
-          c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
-          resolve(c.toDataURL("image/jpeg", quality));
-        };
-        img.src = reader.result;
-      };
-      reader.readAsDataURL(file);
-    });
+  const MAX_DIST = 100; // metres allowed between the "before" and "after" photo
+  const cam = {
+    el: document.getElementById("camera"),
+    video: document.getElementById("cam-video"),
+    preview: document.getElementById("cam-preview"),
+    msg: document.getElementById("cam-msg"),
+    loc: document.getElementById("cam-loc"),
+    stream: null, ready: false, watch: null, fix: null, locErr: false, errKey: null,
+    facing: "environment", shot: null, onDone: null, titleKey: "cam_title_before",
+  };
+  const camBtn = (name) => cam.el.querySelector(`[data-cam="${name}"]`);
+
+  function camRender() {
+    document.getElementById("cam-title").textContent = t(cam.titleKey);
+    camBtn("close").setAttribute("aria-label", t("cam_close"));
+    camBtn("shoot").setAttribute("aria-label", t("cam_shoot"));
+    camBtn("switch").setAttribute("aria-label", t("cam_switch"));
+    camBtn("retake").textContent = t("cam_retake");
+    camBtn("use").textContent = t("cam_use");
+
+    let cls = "";
+    if (cam.locErr && !cam.fix) { cam.loc.textContent = t("loc_denied"); cls = "err"; }
+    else if (cam.fix) { cam.loc.textContent = t("loc_ok", { acc: Math.round(cam.fix.acc) }); cls = "ok"; }
+    else cam.loc.textContent = t("loc_wait");
+    cam.loc.className = "cam-loc " + cls;
+
+    if (cam.errKey) { cam.msg.hidden = false; cam.msg.textContent = t(cam.errKey); }
+    else if (!cam.ready && !cam.shot) { cam.msg.hidden = false; cam.msg.textContent = t("cam_starting"); }
+    else cam.msg.hidden = true;
+
+    camBtn("shoot").disabled = !(cam.ready && cam.fix);
   }
 
-  function bindDrop(drop, onImage) {
-    const input = drop.querySelector("input[type=file]");
-    const show = (data) => {
-      drop.classList.add("has-image");
-      drop.querySelectorAll(":scope > div, :scope > img, :scope > .replace").forEach((n) => n.remove());
-      drop.insertAdjacentHTML("beforeend", `<img src="${data}" alt="${esc(t("selected_photo"))}"><span class="replace">${esc(t("change_photo"))}</span>`);
-    };
-    const handle = async (file) => {
-      try {
-        const data = await readImage(file);
-        show(data);
-        onImage(data);
-      } catch (e) {
-        toast(e.message);
-      }
-    };
-    input.addEventListener("change", () => input.files[0] && handle(input.files[0]));
-    ["dragenter", "dragover"].forEach((ev) => drop.addEventListener(ev, (e) => { e.preventDefault(); drop.classList.add("drag"); }));
-    ["dragleave", "drop"].forEach((ev) => drop.addEventListener(ev, () => drop.classList.remove("drag")));
-    drop.addEventListener("drop", (e) => {
-      e.preventDefault();
-      const f = e.dataTransfer.files[0];
-      if (f) handle(f);
-    });
+  function stopStream() {
+    if (cam.stream) cam.stream.getTracks().forEach((tr) => tr.stop());
+    cam.stream = null;
+    cam.ready = false;
+    cam.video.srcObject = null;
+  }
+
+  async function camStart() {
+    cam.errKey = null;
+    cam.ready = false;
+    camRender();
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      cam.errKey = "cam_unsupported";
+      return camRender();
+    }
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: { ideal: cam.facing }, width: { ideal: 1920 }, height: { ideal: 1080 } },
+        audio: false,
+      });
+      if (cam.el.hidden) { stream.getTracks().forEach((tr) => tr.stop()); return; } // closed while waiting
+      cam.stream = stream;
+      cam.video.srcObject = stream;
+      cam.video.classList.toggle("mirror", cam.facing === "user");
+      await cam.video.play().catch(() => {});
+      cam.ready = true;
+      const devices = await navigator.mediaDevices.enumerateDevices();
+      camBtn("switch").hidden = devices.filter((d) => d.kind === "videoinput").length < 2;
+    } catch (e) {
+      const n = e && e.name;
+      cam.errKey = n === "NotAllowedError" || n === "SecurityError" ? "cam_denied"
+        : n === "NotFoundError" || n === "OverconstrainedError" ? "cam_notfound" : "cam_unsupported";
+    }
+    camRender();
+  }
+
+  function showLive(live) {
+    cam.video.hidden = !live;
+    cam.preview.hidden = live;
+    document.getElementById("cam-live").hidden = !live;
+    document.getElementById("cam-review").hidden = live;
+  }
+
+  function openCamera(titleKey, onDone) {
+    cam.titleKey = titleKey;
+    cam.onDone = onDone;
+    cam.shot = null;
+    cam.fix = null;
+    cam.locErr = false;
+    showLive(true);
+    cam.el.hidden = false;
+    document.body.style.overflow = "hidden";
+    if (navigator.geolocation) {
+      cam.watch = navigator.geolocation.watchPosition(
+        (pos) => {
+          cam.fix = { lat: pos.coords.latitude, lng: pos.coords.longitude, acc: pos.coords.accuracy };
+          cam.locErr = false;
+          camRender();
+        },
+        () => { cam.locErr = true; camRender(); },
+        { enableHighAccuracy: true, maximumAge: 0, timeout: 20000 }
+      );
+    } else {
+      cam.locErr = true;
+    }
+    camStart();
+    camBtn("close").focus();
+  }
+
+  function closeCamera() {
+    stopStream();
+    if (cam.watch != null) navigator.geolocation.clearWatch(cam.watch);
+    cam.watch = null;
+    cam.el.hidden = true;
+    document.body.style.overflow = document.getElementById("modal").hidden ? "" : "hidden";
+  }
+
+  function stampText(m) {
+    const d = new Date(m.at), pad = (n) => String(n).padStart(2, "0");
+    return `YASHIL QADAM · ${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())} · ${m.lat.toFixed(5)}, ${m.lng.toFixed(5)} ±${Math.round(m.acc)}m`;
+  }
+
+  function capture() {
+    const v = cam.video;
+    if (!v.videoWidth || !cam.fix) return;
+    const scale = Math.min(1, 1100 / Math.max(v.videoWidth, v.videoHeight));
+    const c = document.createElement("canvas");
+    c.width = Math.round(v.videoWidth * scale);
+    c.height = Math.round(v.videoHeight * scale);
+    const g = c.getContext("2d");
+    g.drawImage(v, 0, 0, c.width, c.height);
+
+    const meta = { lat: +cam.fix.lat.toFixed(6), lng: +cam.fix.lng.toFixed(6), acc: cam.fix.acc, at: Date.now() };
+    // Burn the time and location into the image itself.
+    const fs = Math.max(11, Math.round(c.width / 64));
+    const padX = Math.round(fs * 0.7), h = Math.round(fs * 2);
+    g.font = `500 ${fs}px ui-monospace, Menlo, Consolas, monospace`;
+    const text = stampText(meta);
+    const w = Math.min(c.width, g.measureText(text).width + padX * 2);
+    g.fillStyle = "rgba(17,25,21,.72)";
+    g.fillRect(0, c.height - h, w, h);
+    g.fillStyle = "#ffffff";
+    g.textBaseline = "middle";
+    g.fillText(text, padX, c.height - h / 2, c.width - padX * 2);
+
+    cam.shot = Object.assign({ data: c.toDataURL("image/jpeg", 0.78) }, meta);
+    cam.preview.src = cam.shot.data;
+    showLive(false);
+    camRender();
+  }
+
+  cam.el.addEventListener("click", (e) => {
+    const b = e.target.closest("[data-cam]");
+    if (!b || b.disabled) return;
+    const a = b.dataset.cam;
+    if (a === "close") closeCamera();
+    else if (a === "shoot") capture();
+    else if (a === "retake") { cam.shot = null; showLive(true); camRender(); }
+    else if (a === "switch") { cam.facing = cam.facing === "environment" ? "user" : "environment"; stopStream(); camStart(); }
+    else if (a === "use" && cam.shot) { const shot = cam.shot, done = cam.onDone; closeCamera(); done(shot); }
+  });
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && !cam.el.hidden) { e.stopPropagation(); closeCamera(); }
+  }, true);
+
+  function distance(a, b) {
+    const R = 6371000, r = (x) => (x * Math.PI) / 180;
+    const dLat = r(b.lat - a.lat), dLng = r(b.lng - a.lng);
+    const h = Math.sin(dLat / 2) ** 2 + Math.cos(r(a.lat)) * Math.cos(r(b.lat)) * Math.sin(dLng / 2) ** 2;
+    return 2 * R * Math.asin(Math.sqrt(h));
+  }
+
+  // The photo field shown in forms: a camera button, or the taken photo.
+  function shotHTML(shot, emptyKey) {
+    if (!shot) {
+      return `
+        <button type="button" class="shot-empty" data-shot="open">
+          <span class="d-icon">${icons.camera}</span>
+          <strong>${esc(t(emptyKey))}</strong>
+          <small>${esc(t("cam_hint"))}</small>
+        </button>`;
+    }
+    return `
+      <div class="shot-full">
+        <img src="${shot.data}" alt="${esc(t("selected_photo"))}">
+        <div class="shot-bar">
+          <span class="shot-meta">${icons.pin}<span>${esc(t("loc_ok", { acc: Math.round(shot.acc) }))}</span></span>
+          <button type="button" class="btn btn-ghost btn-sm" data-shot="open">${esc(t("cam_retake"))}</button>
+        </div>
+      </div>`;
   }
 
   /* ---------------- Toast ---------------- */
@@ -329,6 +467,8 @@
   modal.addEventListener("click", (e) => { if (e.target.closest("[data-close]")) closeModal(); });
   document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !modal.hidden) closeModal(); });
 
+  const afterShots = {}; // "after" photos waiting to be submitted, by spot id
+
   function openSpot(id) {
     const s = state.spots.find((x) => x.id === id);
     if (!s) return;
@@ -355,11 +495,9 @@
       actions = `
         <h3 style="font-size:17px">${esc(t("finished"))}</h3>
         <p style="color:var(--muted);font-size:14px;margin:4px 0 14px">${esc(t("finished_sub"))}</p>
-        <div class="drop" id="after-drop" style="min-height:160px;padding:24px">
-          <input type="file" accept="image/*" aria-label="${esc(t("after_aria"))}">
-          <div><div class="d-icon">${icons.camera}</div><strong>${esc(t("after_drop"))}</strong><br><small>${esc(t("after_hint"))}</small></div>
-        </div>
-        <div class="row" style="margin-top:16px">
+        <div class="shot" id="after-shot"></div>
+        <p class="form-error" id="after-error" role="alert" style="margin-top:12px"></p>
+        <div class="row" style="margin-top:12px">
           <button class="btn btn-green" data-act="complete" disabled>${esc(t("complete_btn", { n: p }))}</button>
           <button class="btn btn-ghost" data-act="unclaim">${esc(t("release_btn"))}</button>
         </div>`;
@@ -386,12 +524,20 @@
         <div class="detail-actions">${actions}</div>
       </div>`);
 
-    let afterData = null;
-    const afterDrop = document.getElementById("after-drop");
-    if (afterDrop) {
-      bindDrop(afterDrop, (data) => {
-        afterData = data;
-        modalContent.querySelector('[data-act="complete"]').disabled = false;
+    const afterEl = document.getElementById("after-shot");
+    if (afterEl) {
+      const draw = () => {
+        afterEl.innerHTML = shotHTML(afterShots[s.id], "after_cam");
+        modalContent.querySelector('[data-act="complete"]').disabled = !afterShots[s.id];
+      };
+      draw();
+      afterEl.addEventListener("click", (e) => {
+        if (!e.target.closest('[data-shot="open"]')) return;
+        openCamera("cam_title_after", (shot) => {
+          afterShots[s.id] = shot;
+          document.getElementById("after-error").textContent = "";
+          draw();
+        });
       });
     }
 
@@ -406,11 +552,24 @@
         } else if (act === "unclaim") {
           s.status = "open";
           s.claimedAt = null;
+          delete afterShots[s.id];
           save();
           toast(t("toast_released"));
-        } else if (act === "complete" && afterData) {
+        } else if (act === "complete" && afterShots[s.id]) {
+          const after = afterShots[s.id];
+          // The "after" photo must be taken at the reported spot.
+          if (s.lat != null) {
+            const d = distance(s, after);
+            const tolerance = Math.min(50, ((s.acc || 0) + after.acc) / 2);
+            if (d > MAX_DIST + tolerance) {
+              document.getElementById("after-error").textContent = t("err_far", { d: fmt(Math.round(d)), max: MAX_DIST });
+              return;
+            }
+          }
           s.status = "cleaned";
-          s.afterPhoto = afterData;
+          s.afterPhoto = after.data;
+          s.afterMeta = { lat: after.lat, lng: after.lng, acc: after.acc, at: after.at };
+          delete afterShots[s.id];
           s.cleanedAt = Date.now();
           s.cleaner = "you";
           s.hours = SIZE_HOURS[s.size];
@@ -436,42 +595,18 @@
 
   /* ---------------- Report form ---------------- */
 
-  let reportPhoto = null;
-  let reportCoords = null;
-  const reportDrop = document.getElementById("report-drop");
-  const reportDropEmpty = reportDrop.querySelector(".drop-empty");
-  bindDrop(reportDrop, (data) => (reportPhoto = data));
-
-  const geoBtn = document.getElementById("r-geo");
-  const geoStatus = document.getElementById("r-geo-status");
-  let geoState = null; // remembered so the message can be re-translated
-  function renderGeo() {
-    if (!geoState) { geoStatus.textContent = ""; geoStatus.className = "loc-status"; return; }
-    geoStatus.className = "loc-status" + (geoState.cls ? " " + geoState.cls : "");
-    geoStatus.textContent = t(geoState.key, geoState.vars);
-  }
-  geoBtn.addEventListener("click", () => {
-    if (!navigator.geolocation) {
-      geoState = { key: "geo_none", cls: "err" };
-      return renderGeo();
-    }
-    geoState = { key: "geo_finding" };
-    renderGeo();
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        reportCoords = { lat: +pos.coords.latitude.toFixed(5), lng: +pos.coords.longitude.toFixed(5) };
-        geoState = { key: "geo_ok", cls: "ok", vars: { lat: reportCoords.lat, lng: reportCoords.lng, acc: Math.round(pos.coords.accuracy) } };
-        renderGeo();
-        const place = document.getElementById("r-place");
-        if (!place.value.trim()) place.value = t("geo_near", reportCoords);
-      },
-      () => {
-        geoState = { key: "geo_fail", cls: "err" };
-        renderGeo();
-      },
-      { enableHighAccuracy: true, timeout: 10000 }
-    );
+  let reportShot = null;
+  const reportShotEl = document.getElementById("report-shot");
+  const renderReportShot = () => (reportShotEl.innerHTML = shotHTML(reportShot, "cam_open"));
+  reportShotEl.addEventListener("click", (e) => {
+    if (!e.target.closest('[data-shot="open"]')) return;
+    openCamera("cam_title_before", (shot) => {
+      reportShot = shot;
+      document.getElementById("report-error").textContent = "";
+      renderReportShot();
+    });
   });
+  renderReportShot();
 
   document.getElementById("report-form").addEventListener("submit", (e) => {
     e.preventDefault();
@@ -483,7 +618,7 @@
     const hazard = document.getElementById("r-hazard").checked;
     const claim = document.getElementById("r-claim").checked && !hazard;
 
-    if (!reportPhoto) return (err.textContent = t("err_photo"));
+    if (!reportShot) return (err.textContent = t("err_photo"));
     if (!title) return (err.textContent = t("err_title"));
     if (!place) return (err.textContent = t("err_place"));
     err.textContent = "";
@@ -491,8 +626,8 @@
     const now = Date.now();
     const spot = {
       id: uid(), title, place, size, note, hazard,
-      lat: reportCoords?.lat ?? null, lng: reportCoords?.lng ?? null,
-      photo: reportPhoto, afterPhoto: null,
+      lat: reportShot.lat, lng: reportShot.lng, acc: reportShot.acc, photoAt: reportShot.at,
+      photo: reportShot.data, afterPhoto: null,
       status: claim ? "claimed" : "open",
       createdAt: now, claimedAt: claim ? now : null, cleanedAt: null,
       reporter: "you",
@@ -507,13 +642,8 @@
 
     // Reset form
     e.target.reset();
-    reportPhoto = null;
-    reportCoords = null;
-    geoState = null;
-    renderGeo();
-    reportDrop.classList.remove("has-image");
-    reportDrop.querySelectorAll("img, .replace").forEach((n) => n.remove());
-    reportDrop.appendChild(reportDropEmpty);
+    reportShot = null;
+    renderReportShot();
 
     renderBalance();
     toast(t("toast_reported", { n: REPORT_POINTS }));
@@ -705,7 +835,8 @@
   document.addEventListener("langchange", () => {
     renderBalance();
     renderStatic();
-    renderGeo();
+    renderReportShot();
+    if (!cam.el.hidden) camRender();
     ["report-error", "gift-error", "cert-error"].forEach((id) => (document.getElementById(id).textContent = ""));
     const view = currentView();
     if (view === "spots") renderSpots();

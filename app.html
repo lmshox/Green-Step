@@ -94,14 +94,7 @@
           <div class="card">
             <div class="field">
               <span class="label" data-i18n="a.f.photo">Surat</span>
-              <div class="drop" id="report-drop">
-                <input type="file" accept="image/*" id="report-photo" data-i18n-aria="a.f.upload" aria-label="Surat yuklash">
-                <div class="drop-empty">
-                  <div class="d-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8a2 2 0 0 1 2-2h2l1.5-2h5L16 6h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2Z"/><circle cx="12" cy="12.5" r="3.5"/></svg></div>
-                  <strong data-i18n="a.f.drop">Suratga oling yoki yuklang</strong><br>
-                  <small data-i18n="a.f.drop_hint">Faylni shu yerga torting yoki tanlash uchun bosing. JPG, PNG yoki HEIC.</small>
-                </div>
-              </div>
+              <div class="shot" id="report-shot"></div>
             </div>
 
             <div class="field">
@@ -111,14 +104,8 @@
 
             <div class="field">
               <label for="r-place" data-i18n="a.f.place">Joylashuv</label>
-              <div class="row">
-                <input class="input" id="r-place" maxlength="80" data-i18n-ph="a.f.place_ph" placeholder="Ko‘cha, park yoki mo‘ljal">
-                <button type="button" class="btn btn-ghost" id="r-geo" style="height:auto">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/><circle cx="12" cy="12" r="7"/></svg>
-                  <span data-i18n="a.f.geo">Joylashuvimni aniqlash</span>
-                </button>
-              </div>
-              <span class="loc-status" id="r-geo-status"></span>
+              <input class="input" id="r-place" maxlength="80" data-i18n-ph="a.f.place_ph" placeholder="Ko‘cha, park yoki mo‘ljal">
+              <span class="help" data-i18n="a.f.place_help">Aniq koordinatalar suratdan olinadi. Bu yerga odamlar tushunadigan nomni yozing.</span>
             </div>
 
             <div class="field">
@@ -153,7 +140,7 @@
             <h3 data-i18n="a.tips.title">Foydali xabar uchun maslahatlar</h3>
             <ul class="tips">
               <li><span class="n">1</span><span data-i18n="a.tips.1">Butun joy va biror tanish narsa — o‘rindiq, belgi yoki daraxt kadrga tushishi uchun biroz orqaga turing.</span></li>
-              <li><span class="n">2</span><span data-i18n="a.tips.2">Joyning o‘zida turib “Joylashuvimni aniqlash” tugmasini bosing. Bu tozalashni tekshirishni osonlashtiradi.</span></li>
+              <li><span class="n">2</span><span data-i18n="a.tips.2">Suratni joyning o‘zida turib oling — kamera joylashuvni avtomatik yozib oladi. “Keyin” surati ham shu yerdan olinishi kerak.</span></li>
               <li><span class="n">3</span><span data-i18n="a.tips.3">Hajmni to‘g‘ri belgilang — tozalash uchun beriladigan ball shunga bog‘liq.</span></li>
             </ul>
             <div class="warn" data-i18n="a.tips.warn"><b>Ehtiyot bo‘ling.</b> Surat olish uchun xususiy hududga, yo‘lning qatnov qismiga yoki mustahkam bo‘lmagan qirg‘oqqa kirmang.</div>
@@ -268,6 +255,30 @@
   <div class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="modal-title">
     <button class="modal-close" data-close data-i18n-aria="a.close" aria-label="Yopish"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
     <div id="modal-content"></div>
+  </div>
+</div>
+
+<div class="camera" id="camera" hidden role="dialog" aria-modal="true" aria-labelledby="cam-title">
+  <div class="cam-top">
+    <span class="cam-title" id="cam-title"></span>
+    <button class="cam-icon-btn" data-cam="close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+  </div>
+  <div class="cam-stage">
+    <video id="cam-video" playsinline muted autoplay></video>
+    <img id="cam-preview" alt="" hidden>
+    <div class="cam-msg" id="cam-msg" hidden></div>
+  </div>
+  <div class="cam-bottom">
+    <span class="cam-loc" id="cam-loc"></span>
+    <div class="cam-controls" id="cam-live">
+      <span class="cam-spacer"></span>
+      <button class="cam-shutter" data-cam="shoot" disabled></button>
+      <button class="cam-icon-btn" data-cam="switch" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8a2 2 0 0 1 2-2h2l1.5-2h5L16 6h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2Z"/><path d="M9 12.5a3 3 0 0 1 5.2-2M15 12.5a3 3 0 0 1-5.2 2M14.5 8.5v2h-2M9.5 16.5v-2h2"/></svg></button>
+    </div>
+    <div class="cam-controls" id="cam-review" hidden>
+      <button class="btn btn-ghost cam-btn" data-cam="retake"></button>
+      <button class="btn btn-light cam-btn" data-cam="use"></button>
+    </div>
   </div>
 </div>
 
