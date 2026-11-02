@@ -1,8 +1,8 @@
-# Green Step
+# Yashil Qadam
 
 Report polluted places, clean them up, and get rewarded.
 
-Green Step is a website where anyone can:
+Yashil Qadam ("Green Step" in Uzbek) is a website where anyone can:
 
 1. **Report** a polluted spot: upload a photo, add the location and estimate how much waste is there (+10 pts).
 2. **Clean it up** (optional): claim a spot, then upload an "after" photo when it's done (+50 / +120 / +250 pts depending on size).
@@ -18,6 +18,15 @@ Green Step is a website where anyone can:
 | `css/app.css` | App styles |
 | `js/site.js` | Header, mobile menu, scroll reveal and before/after slider |
 | `js/app.js` | App logic: reports, cleanups, points, cash out and gifts |
+| `js/i18n.js` | Translations (Uzbek, Russian, English) and the language switcher |
+
+## Languages
+
+The site is available in **Uzbek (default)**, **Russian** and **English**. Visitors switch language with the globe menu in the header, and the choice is remembered. You can also link straight to a language with `?lang=ru` or `?lang=en`.
+
+- The HTML files are written in Uzbek. Every translatable element has a `data-i18n="key"` attribute.
+- `js/i18n.js` holds the Russian and English text for those keys (`PAGE`), and the messages created by the app in all three languages (`MSG`).
+- To change wording, edit the Uzbek text in the HTML and the matching key in `js/i18n.js`.
 
 ## Run it locally
 
