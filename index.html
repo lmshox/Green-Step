@@ -46,81 +46,176 @@
 
 <main>
 
-  <!-- Hero -->
-  <section class="hero">
-    <div class="wrap hero-grid">
-      <div>
+  <!-- Hero: scroll story -->
+  <section class="story" id="story">
+    <div class="story-sticky">
+      <svg class="story-svg" viewBox="0 0 1600 1000" preserveAspectRatio="xMidYMid slice" role="img" data-i18n-aria="l.story.aria" aria-label="Katta yashil daraxt. Pastga surilganda uning tagida axlat paydo bo‘ladi, so‘ng ko‘ngillilar uni tozalaydi va joy yana yashil bo‘ladi.">
+        <defs>
+          <linearGradient id="sg-sky" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#e3ecd9"/>
+            <stop offset="1" stop-color="#f4f2e8"/>
+          </linearGradient>
+          <linearGradient id="sg-ground" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#a3bd8c"/>
+            <stop offset="1" stop-color="#7f9f6c"/>
+          </linearGradient>
+          <linearGradient id="sg-trunk" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0" stop-color="#5b4632"/>
+            <stop offset=".55" stop-color="#735a41"/>
+            <stop offset="1" stop-color="#5b4632"/>
+          </linearGradient>
+        </defs>
+
+        <g id="world">
+          <!-- sky -->
+          <rect x="-900" y="-900" width="3400" height="2500" fill="url(#sg-sky)"/>
+          <g fill="#ffffff" opacity=".75">
+            <ellipse cx="180" cy="160" rx="120" ry="34"/><ellipse cx="260" cy="140" rx="80" ry="36"/>
+            <ellipse cx="1420" cy="90" rx="110" ry="30"/><ellipse cx="1360" cy="76" rx="64" ry="28"/>
+            <ellipse cx="-120" cy="420" rx="140" ry="32"/>
+          </g>
+
+          <!-- hills -->
+          <path d="M-900 1330 C-500 1240 -200 1290 100 1250 C420 1206 640 1280 900 1240 C1180 1196 1420 1260 1700 1220 C2000 1180 2300 1240 2500 1220 L2500 1600 L-900 1600Z" fill="#c4d3bb"/>
+          <path d="M-900 1420 C-560 1360 -260 1400 80 1370 C380 1344 620 1400 940 1372 C1240 1346 1480 1392 1760 1364 C2060 1336 2300 1380 2500 1370 L2500 1600 L-900 1600Z" fill="#b1c6a3"/>
+
+          <!-- ground -->
+          <path d="M-900 1505 C-500 1488 -100 1514 300 1500 C600 1490 760 1512 1000 1502 C1300 1490 1700 1516 2100 1498 C2300 1490 2400 1500 2500 1500 L2500 2300 L-900 2300Z" fill="url(#sg-ground)"/>
+          <path id="dirt" d="M-900 1505 C-500 1488 -100 1514 300 1500 C600 1490 760 1512 1000 1502 C1300 1490 1700 1516 2100 1498 C2300 1490 2400 1500 2500 1500 L2500 2300 L-900 2300Z" fill="#8c7f5d" opacity="0"/>
+          <path id="lush" d="M-900 1505 C-500 1488 -100 1514 300 1500 C600 1490 760 1512 1000 1502 C1300 1490 1700 1516 2100 1498 C2300 1490 2400 1500 2500 1500 L2500 2300 L-900 2300Z" fill="#b9dc84" opacity="0"/>
+          <g fill="none" stroke="#6f9160" stroke-width="3" stroke-linecap="round" opacity=".55">
+            <path d="M380 1600 l-6 -16 M388 1600 l2 -18 M396 1600 l8 -14"/>
+            <path d="M1180 1640 l-6 -16 M1188 1640 l2 -18 M1196 1640 l8 -14"/>
+            <path d="M540 1860 l-6 -16 M548 1860 l2 -18 M556 1860 l8 -14"/>
+            <path d="M1060 1930 l-6 -16 M1068 1930 l2 -18 M1076 1930 l8 -14"/>
+            <path d="M250 1780 l-6 -16 M258 1780 l2 -18 M266 1780 l8 -14"/>
+            <path d="M1320 1800 l-6 -16 M1328 1800 l2 -18 M1336 1800 l8 -14"/>
+            <path d="M840 1960 l-6 -16 M848 1960 l2 -18 M856 1960 l8 -14"/>
+          </g>
+          <ellipse cx="800" cy="1548" rx="210" ry="22" fill="#6f8f5d" opacity=".45"/>
+
+          <!-- tree -->
+          <g class="tree-in">
+            <path d="M700 1560 C724 1540 748 1520 756 1470 L772 700 L828 700 L844 1470 C852 1520 876 1540 900 1560 C860 1556 830 1548 800 1548 C770 1548 740 1556 700 1560Z" fill="url(#sg-trunk)"/>
+            <path d="M708 1560 C680 1566 640 1572 610 1586 M892 1560 C920 1566 960 1572 990 1588 M770 1552 C752 1570 730 1590 716 1606 M832 1552 C850 1570 872 1590 888 1604" stroke="#5b4632" stroke-width="12" stroke-linecap="round" fill="none"/>
+            <path d="M790 1000 C790 1080 786 1180 790 1260 M812 900 C814 980 810 1060 814 1120" stroke="#4d3b2a" stroke-width="3" stroke-linecap="round" fill="none" opacity=".45"/>
+            <path d="M786 900 C730 820 650 760 560 700 M814 860 C870 790 950 740 1040 690 M800 760 C800 640 800 520 800 420" stroke="#5b4632" stroke-width="26" stroke-linecap="round" fill="none"/>
+          </g>
+          <g class="canopy-in">
+            <g class="canopy-sway">
+              <g fill="#2a5a3f">
+                <circle cx="800" cy="330" r="300"/><circle cx="560" cy="430" r="215"/><circle cx="1040" cy="430" r="215"/>
+                <circle cx="680" cy="220" r="190"/><circle cx="930" cy="210" r="200"/><circle cx="420" cy="570" r="150"/><circle cx="1180" cy="570" r="150"/>
+              </g>
+              <g fill="#3a7652">
+                <circle cx="800" cy="420" r="250"/><circle cx="600" cy="530" r="180"/><circle cx="1000" cy="530" r="180"/>
+                <circle cx="720" cy="300" r="170"/><circle cx="890" cy="290" r="170"/><circle cx="470" cy="620" r="110"/><circle cx="1130" cy="620" r="110"/>
+              </g>
+              <g fill="#4f8c63">
+                <circle cx="700" cy="610" r="150"/><circle cx="900" cy="610" r="150"/><circle cx="800" cy="520" r="170"/>
+                <circle cx="530" cy="660" r="105"/><circle cx="1070" cy="660" r="105"/><circle cx="780" cy="300" r="120"/>
+              </g>
+              <g fill="#6aa775" opacity=".9">
+                <circle cx="650" cy="560" r="62"/><circle cx="850" cy="470" r="70"/><circle cx="740" cy="240" r="58"/>
+                <circle cx="1000" cy="600" r="50"/><circle cx="500" cy="630" r="42"/><circle cx="940" cy="300" r="52"/>
+              </g>
+              <g fill="#d4ec7a" opacity=".35">
+                <circle cx="630" cy="540" r="18"/><circle cx="830" cy="448" r="22"/><circle cx="724" cy="222" r="16"/><circle cx="924" cy="282" r="14"/>
+              </g>
+            </g>
+          </g>
+
+          <!-- falling leaves -->
+          <g class="leaves" fill="#5a9468">
+            <g transform="translate(560 640)"><path class="leaf l1" d="M0 -9 C7 -6 9 3 0 9 C-9 3 -7 -6 0 -9Z"/></g>
+            <g transform="translate(980 660)"><path class="leaf l2" d="M0 -9 C7 -6 9 3 0 9 C-9 3 -7 -6 0 -9Z" fill="#7fae7b"/></g>
+            <g transform="translate(720 720)"><path class="leaf l3" d="M0 -9 C7 -6 9 3 0 9 C-9 3 -7 -6 0 -9Z"/></g>
+            <g transform="translate(1100 600)"><path class="leaf l4" d="M0 -9 C7 -6 9 3 0 9 C-9 3 -7 -6 0 -9Z" fill="#7fae7b"/></g>
+            <g transform="translate(450 600)"><path class="leaf l5" d="M0 -9 C7 -6 9 3 0 9 C-9 3 -7 -6 0 -9Z"/></g>
+          </g>
+
+          <!-- grey "polluted" tint: above the scenery, below the rubbish and markers -->
+          <rect id="dull" x="-900" y="-900" width="3400" height="3400" fill="#7f7a66" opacity="0"/>
+
+          <!-- filled by js/story.js -->
+          <g id="flowers"></g>
+          <g id="rubbish"></g>
+          <g id="pins"></g>
+          <g id="bag" opacity="0">
+            <ellipse cx="0" cy="44" rx="52" ry="9" fill="#55704a" opacity=".5"/>
+            <path d="M-46 40 C-60 0 -44 -40 -16 -50 L-10 -62 L10 -62 L16 -50 C44 -40 60 0 46 40 C30 52 -30 52 -46 40Z" fill="#24412f"/>
+            <path d="M-26 -30 C-36 -10 -36 14 -28 30" stroke="#3d6a4d" stroke-width="6" stroke-linecap="round" fill="none"/>
+            <path d="M-10 -62 L-22 -78 L0 -67 L22 -78 L10 -62Z" fill="#1a3022"/>
+          </g>
+          <g id="check" opacity="0">
+            <circle r="92" fill="none" stroke="#d4ec7a" stroke-width="6"/>
+            <circle r="72" fill="#2c6a4b"/>
+            <path d="M-30 2 L-8 24 L32 -20" stroke="#fff" stroke-width="14" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+          </g>
+        </g>
+
+        <rect id="flash" x="-900" y="-200" width="3400" height="1400" fill="#ffffff" opacity="0"/>
+      </svg>
+
+      <div class="story-intro" id="story-intro">
         <span class="eyebrow" data-i18n="l.hero.eyebrow">Jamoaviy tozalash — mukofot bilan</span>
         <h1 data-i18n="l.hero.title">Iflos joyni toping. <span class="serif">Tozalang.</span> Mukofot oling.</h1>
-        <p class="hero-lede" data-i18n="l.hero.lede">Yashil Qadam’da har kim ifloslangan joyni suratga olib, xaritaga qo‘shishi mumkin. Agar uni o‘zingiz tozalasangiz, “oldin” va “keyin” suratlari uchun ball olasiz — ularni hamkorlarimizning sovg‘alariga almashtirasiz, qilgan ishingiz esa ko‘ngillilik sertifikatida qayd etiladi.</p>
+        <p class="hero-lede" data-i18n="l.story.lede">Yashil Qadam — shahringizdagi ifloslangan joylarni birgalikda tozalash va buning uchun mukofot olish platformasi.</p>
         <div class="hero-cta">
           <a href="app.html#report" class="btn btn-primary">
             <span data-i18n="l.cta.report">Ifloslangan joy haqida xabar berish</span>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
           </a>
-          <a href="#how" class="btn btn-ghost" data-i18n="l.hero.cta2">Qanday ishlaydi</a>
-        </div>
-        <div class="hero-meta">
-          <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span data-i18n="l.hero.m1">Qo‘shilish bepul</span></span>
-          <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span data-i18n="l.hero.m2">Tozalash — ixtiyoriy</span></span>
-          <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span data-i18n="l.hero.m3">Sovg‘alar va ko‘ngillilik sertifikati</span></span>
+          <a href="#how" class="btn btn-ghost story-ghost" data-i18n="l.hero.cta2">Qanday ishlaydi</a>
         </div>
       </div>
 
-      <div class="stage" aria-hidden="true">
-        <div class="stage-map">
-          <svg viewBox="0 0 540 550" preserveAspectRatio="xMidYMid slice">
-            <rect width="540" height="550" fill="#e8e7dd"/>
-            <path d="M-10 60 C80 40 150 70 190 130 C220 180 170 230 90 240 C30 248 -10 220 -10 200Z" fill="#dce4d1"/>
-            <path d="M330 360 C400 330 500 340 560 380 L560 560 L300 560 C290 480 290 400 330 360Z" fill="#dce4d1"/>
-            <g fill="none" stroke="#d6d4c7" stroke-width="1">
-              <path d="M300 40 C360 20 450 40 480 100 C510 160 470 220 400 230 C330 240 280 200 270 150 C262 100 260 55 300 40Z"/>
-              <path d="M312 66 C362 50 436 66 458 112 C480 158 450 204 396 210 C342 216 302 186 294 146 C288 106 284 76 312 66Z"/>
-              <path d="M326 92 C364 80 418 92 434 124 C450 158 428 188 390 192 C352 196 324 176 318 148 C312 120 306 100 326 92Z"/>
-              <path d="M342 116 C368 108 398 116 408 136 C418 158 404 174 382 176 C360 178 342 166 340 150 C337 132 330 122 342 116Z"/>
-              <path d="M40 330 C100 300 190 320 210 380 C230 440 180 490 110 495 C40 500 0 460 -5 420"/>
-              <path d="M50 356 C96 334 166 350 182 394 C198 438 160 470 108 472 C56 474 24 446 20 418"/>
-              <path d="M62 380 C94 366 142 376 154 404 C166 432 140 452 106 452 C72 452 50 434 46 414"/>
-            </g>
-            <path d="M-20 300 C60 280 120 300 180 290 C260 276 300 230 360 236 C430 244 470 300 560 290" fill="none" stroke="#c6d6d0" stroke-width="30" stroke-linecap="round"/>
-            <path d="M-20 300 C60 280 120 300 180 290 C260 276 300 230 360 236 C430 244 470 300 560 290" fill="none" stroke="#d4e1dc" stroke-width="2" stroke-dasharray="2 10" stroke-linecap="round"/>
-            <g fill="none" stroke="#fbfaf6" stroke-linecap="round">
-              <path d="M120 -10 C130 120 150 220 230 300 C300 370 310 460 300 560" stroke-width="12"/>
-              <path d="M-10 470 C120 450 220 420 300 420 C380 420 460 440 560 430" stroke-width="9"/>
-              <path d="M240 -10 C250 80 300 140 380 170 C440 192 500 190 560 180" stroke-width="7"/>
-              <path d="M400 560 C410 500 420 460 450 400" stroke-width="5"/>
-              <path d="M-10 150 C40 160 90 170 140 168" stroke-width="5"/>
-            </g>
-            <g fill="none" stroke="#e1dfd4" stroke-width="1">
-              <path d="M120 -10 C130 120 150 220 230 300 C300 370 310 460 300 560"/>
-            </g>
-          </svg>
-          <span class="pin" style="left:22%;top:23%"></span>
-          <span class="pin done" style="left:78%;top:70%"></span>
-          <span class="pin done" style="left:12%;top:60%"></span>
-          <span class="pin" style="left:62%;top:32%"></span>
-          <span class="pin pulse" style="left:44%;top:50%"></span>
+      <div class="story-caps" aria-live="polite">
+        <div class="story-cap" data-cap="0">
+          <span class="cap-num mono">01 / 04</span>
+          <h3 data-i18n="l.story.c1t">Belgilang</h3>
+          <p data-i18n="l.story.c1p">Ifloslangan joyni suratga oling — u GPS bilan xaritaga tushadi.</p>
+          <div class="cap-dots"><i class="on"></i><i></i><i></i><i></i></div>
         </div>
-
-        <div class="float-card wallet-card">
-          <div class="wc-label" data-i18n="l.wc.label">Balansingiz</div>
-          <div class="wc-value" data-i18n="l.wc.value">2 340<small>ball</small></div>
-          <div class="wc-row"><span data-i18n="l.wc.hours">Ko‘ngillilik soatlari</span><b data-i18n="l.wc.hours_v">12,5 soat</b></div>
+        <div class="story-cap" data-cap="1">
+          <span class="cap-num mono">02 / 04</span>
+          <h3 data-i18n="l.story.c2t">Tozalang</h3>
+          <p data-i18n="l.story.c2p">Yolg‘iz yoki klubingiz bilan shanbalik uyushtiring va joyni tozalang.</p>
+          <div class="cap-dots"><i class="on"></i><i class="on"></i><i></i><i></i></div>
         </div>
-
-        <div class="float-card report-card">
-          <div class="rc-top"><span class="mono" data-i18n="l.rc.top">JOY · DARYO BO‘YI</span><span data-i18n="l.rc.dist">0,4 km</span></div>
-          <h4 data-i18n="l.rc.title">Qirg‘oqda plastik paketlar va butilkalar</h4>
-          <div class="rc-sub" data-i18n="l.rc.sub">O‘rtacha · taxminan 3–5 qop chiqindi</div>
-          <div class="steps-mini"><div class="on"></div><div class="on"></div><div></div></div>
-          <div class="steps-labels"><span class="on" data-i18n="l.rc.s1">Belgilandi</span><span class="on" data-i18n="l.rc.s2">Band</span><span data-i18n="l.rc.s3">Tozalandi</span></div>
+        <div class="story-cap" data-cap="2">
+          <span class="cap-num mono">03 / 04</span>
+          <h3 data-i18n="l.story.c3t">Tasdiqlang</h3>
+          <p data-i18n="l.story.c3p">“Keyin” surati o‘sha joyning o‘zida olinadi va tekshiriladi.</p>
+          <div class="cap-dots"><i class="on"></i><i class="on"></i><i class="on"></i><i></i></div>
         </div>
-
-        <div class="float-card toast-card">
-          <span class="tc-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#111915" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span>
-          <span data-i18n="l.toast">Tasdiqlangan tozalash uchun <b>+120 ball</b></span>
+        <div class="story-cap" data-cap="3">
+          <span class="cap-num mono">04 / 04</span>
+          <h3 data-i18n="l.story.c4t">Mukofot oling</h3>
+          <p data-i18n="l.story.c4p">Eko-ballar, hamkorlar sovg‘alari va ko‘ngillilik sertifikati.</p>
+          <div class="cap-dots"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></div>
         </div>
       </div>
+
+      <div class="story-chip" id="story-chip" data-i18n="l.story.chip">+120 ball</div>
+
+      <div class="story-end" id="story-end">
+        <h2 data-i18n="l.story.end">Tabiat yana toza. <span class="serif">Navbatdagi qadam sizniki.</span></h2>
+        <div class="hero-cta">
+          <a href="app.html#report" class="btn btn-primary" data-i18n="l.cta.report">Ifloslangan joy haqida xabar berish</a>
+          <a href="app.html" class="btn btn-ghost story-ghost" data-i18n="l.cta.browse">Ochiq joylarni ko‘rish</a>
+        </div>
+      </div>
+
+      <button type="button" class="story-skip" id="story-skip">
+        <span data-i18n="l.story.skip">O‘tkazib yuborish</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M6 13l6 6 6-6"/></svg>
+      </button>
+      <div class="story-hint" id="story-hint">
+        <span data-i18n="l.story.hint">Pastga suring</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+      </div>
+      <div class="story-progress"><i id="story-bar"></i></div>
     </div>
   </section>
 
@@ -458,5 +553,6 @@
 </footer>
 
 <script src="js/site.js"></script>
+<script src="js/story.js"></script>
 </body>
 </html>
