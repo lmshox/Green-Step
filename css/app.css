@@ -375,3 +375,65 @@
 .cam-btn { width: 100%; }
 .camera .btn-ghost { color: #fff; border-color: rgba(255,255,255,.35); }
 .camera .btn-ghost:hover { border-color: #fff; }
+
+/* ---------- Account & sign-in ---------- */
+
+.account { position: relative; display: inline-flex; }
+.signin-btn { gap: 8px; }
+.signin-btn svg { width: 16px; height: 16px; background: #fff; border-radius: 50%; padding: 2px; box-sizing: content-box; }
+.avatar-btn { width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--line-2); background: var(--green); color: #fff; padding: 0; overflow: hidden; cursor: pointer; display: grid; place-items: center; font-weight: 600; }
+.avatar-btn img { width: 100%; height: 100%; object-fit: cover; }
+.account-menu { position: absolute; right: 0; top: 46px; z-index: 70; min-width: 220px; background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 14px; box-shadow: var(--shadow-lg); display: grid; gap: 4px; }
+.account-menu[hidden] { display: none; }
+.am-name { font-weight: 600; }
+.am-mail { font-size: 13px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; margin-bottom: 8px; }
+.am-role { display: inline-block; width: fit-content; font-family: var(--mono); font-size: 11px; letter-spacing: .06em; text-transform: uppercase; padding: 3px 8px; border-radius: 6px; background: var(--green-soft); color: var(--green); margin-bottom: 8px; }
+.points-pill[hidden] { display: none; }
+@media (max-width: 420px) { .signin-btn span { display: none; } .signin-btn { padding: 0 10px; } }
+
+.auth-gate[hidden] { display: none; }
+.gate-card { max-width: 520px; margin: 8px auto 40px; text-align: center; background: var(--card); border: 1px solid var(--line); border-radius: 20px; padding: 44px 28px; }
+.gate-card .e-icon { width: 56px; height: 56px; border-radius: 14px; margin: 0 auto 18px; background: var(--green-soft); display: grid; place-items: center; color: var(--green); }
+.gate-card .e-icon svg { width: 24px; height: 24px; }
+.gate-card h3 { font-size: 22px; }
+.gate-card p { color: var(--muted); margin: 8px auto 24px; max-width: 30em; }
+
+[data-held-line] { display: flex; align-items: center; gap: 8px; color: var(--lime) !important; }
+[data-held-line][hidden] { display: none; }
+[data-held-line] svg { width: 16px; height: 16px; flex: none; }
+
+/* ---------- Spot detail additions ---------- */
+
+.muted-line { color: var(--muted); font-size: 14px; }
+.muted-line b { color: var(--ink); font-weight: 500; }
+.confirm-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-top: 4px; padding: 12px 14px; border-radius: 12px; background: var(--paper); border: 1px solid var(--line); font-size: 14px; color: var(--ink-2); }
+.confirm-row .btn svg { width: 15px; height: 15px; }
+.confirmed { display: inline-flex; align-items: center; gap: 6px; color: var(--green-2); font-weight: 500; }
+.confirmed svg { width: 15px; height: 15px; }
+.note-box { margin: 0 0 14px; padding: 12px 14px; border-radius: 12px; background: var(--amber-soft); color: #6d4c0c; font-size: 14px; }
+.mod-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 18px; padding-top: 16px; border-top: 1px dashed var(--line-2); }
+.mod-row .am-role { margin: 0; }
+.mod-row .btn svg { width: 15px; height: 15px; }
+.mod-reject { color: var(--rust); border-color: rgba(180, 83, 42, .35); }
+.badge.rv-pending { color: var(--amber); }
+.badge.rv-approved { color: var(--green-2); }
+.badge.rv-rejected { color: var(--rust); }
+
+/* ---------- Gift codes ---------- */
+
+.gp-title { font-size: 16px; letter-spacing: -0.01em; margin-bottom: 4px; }
+.gift-receive { margin-top: 28px; padding-top: 22px; border-top: 1px solid var(--line); }
+.gift-receive .row { margin-top: 12px; }
+.code-box { margin-top: 18px; padding: 16px; border-radius: 14px; background: var(--green-soft); border: 1px solid rgba(33, 61, 44, .15); display: grid; gap: 8px; }
+.cb-label { font-size: 13px; color: var(--green); font-weight: 500; }
+.cb-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.cb-row b { font-size: 22px; letter-spacing: .12em; color: var(--ink); }
+.code-box small { color: var(--ink-2); font-size: 13px; }
+
+/* Phones: keep the sign-in button visible; the Rewards tab shows the balance */
+@media (max-width: 520px) {
+  .header-actions .account .btn-primary { display: inline-flex; }
+}
+@media (max-width: 440px) {
+  .site-header .points-pill { display: none; }
+}

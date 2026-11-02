@@ -1,0 +1,311 @@
+rules_version = '2';
+
+// Yashil Qadam — Firestore security rules.
+//
+// Points can't be written freely. Every change to a balance is a ledger entry,
+// and each entry kind is checked against the real event it pays for:
+//   report   +10 to "held"          the reported spot exists and is yours
+//   cleanup  +P to "held"           you cleaned the spot in this same write
+//   release  held -> balance        7 days after the report or cleanup, unless a moderator rejected it
+//   reward   -cost from balance     fixed price per reward
+//   gift_out / gift_in              moving points through a one-time gift code
+// The user document keeps the running totals, and the rules check that every
+// total change equals the entry written in the same batch. Balances can't go
+// below zero.
+//
+// Fair play enforced here:
+//   * the "after" photo must be within about 100 m of the reported spot
+//   * cleaning your own report only counts after 2 confirmations or 3 days
+//   * at most 3 cleanups per day per person
+//   * new points are held for 7 days, and moderators can reject them
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() { return request.auth != null; }
+    function isAdmin() { return signedIn() && exists(/databases/$(database)/documents/admins/$(request.auth.uid)); }
+    function spotPath(id) { return /databases/$(database)/documents/spots/$(id); }
+    function userPath(uid) { return /databases/$(database)/documents/users/$(uid); }
+    function entryPath(uid, eid) { return /databases/$(database)/documents/users/$(uid)/ledger/$(eid); }
+    function giftPath(code) { return /databases/$(database)/documents/gifts/$(code); }
+
+    function points(size) { return {'small': 50, 'medium': 120, 'large': 250}[size]; }
+    function rewardCost(r) { return {'coffee': 200, 'bag': 300, 'tree': 500, 'bottle': 600, 'cinema': 800}[r]; }
+
+    function str(v, max) { return v is string && v.size() <= max; }
+    function changed() { return request.resource.data.diff(resource.data).affectedKeys(); }
+
+    // Moderators are added by hand in the Firebase console (collection "admins", document id = user UID).
+    match /admins/{uid} {
+      allow get: if signedIn() && request.auth.uid == uid;
+      allow list, write: if false;
+    }
+
+    /* ---------------- Users and their point totals ---------------- */
+
+    match /users/{uid} {
+      allow read: if signedIn() && (request.auth.uid == uid || isAdmin());
+
+      allow create: if signedIn() && request.auth.uid == uid
+        && request.resource.data.keys().hasOnly(['name', 'photo', 'createdAt', 'balance', 'held', 'lastEntry', 'dayStart', 'cleanupsToday', 'certName', 'certId'])
+        && str(request.resource.data.name, 80)
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.balance == 0
+        && request.resource.data.held == 0
+        && request.resource.data.cleanupsToday == 0
+        && request.resource.data.lastEntry == null;
+
+      // Profile fields only.
+      allow update: if signedIn() && request.auth.uid == uid
+        && changed().hasOnly(['name', 'photo', 'certName', 'certId'])
+        && str(request.resource.data.name, 80);
+
+      // Totals: only together with a brand-new ledger entry that explains the change.
+      allow update: if signedIn() && request.auth.uid == uid
+        && changed().hasOnly(['balance', 'held', 'lastEntry', 'dayStart', 'cleanupsToday'])
+        && totalsMatchEntry(uid);
+
+      function totalsMatchEntry(uid) {
+        let d = request.resource.data;
+        let eid = d.lastEntry;
+        let e = getAfter(entryPath(uid, eid)).data;
+        return eid is string
+          && !exists(entryPath(uid, eid))
+          && existsAfter(entryPath(uid, eid))
+          && d.balance == resource.data.balance + e.balanceDelta
+          && d.held == resource.data.held + e.heldDelta
+          && d.balance >= 0 && d.held >= 0
+          && dailyLimit(e.kind);
+      }
+
+      // At most 3 cleanups a day.
+      function dailyLimit(kind) {
+        let d = request.resource.data;
+        let today = request.time.date();
+        return kind == 'cleanup'
+          ? d.dayStart == today
+            && d.cleanupsToday == (resource.data.dayStart == today ? resource.data.cleanupsToday + 1 : 1)
+            && d.cleanupsToday <= 3
+          : d.dayStart == resource.data.get('dayStart', null) && d.cleanupsToday == resource.data.cleanupsToday;
+      }
+
+      /* ---------------- Ledger ---------------- */
+
+      match /ledger/{eid} {
+        allow read: if signedIn() && (request.auth.uid == uid || isAdmin());
+        allow update, delete: if false;
+
+        allow create: if signedIn() && request.auth.uid == uid
+          && request.resource.data.at == request.time
+          && request.resource.data.balanceDelta is int
+          && request.resource.data.heldDelta is int
+          && getAfter(userPath(uid)).data.lastEntry == eid
+          && validEntry(uid, eid, request.resource.data);
+
+        function validEntry(uid, eid, e) {
+          return (e.kind == 'report' && reportEntry(uid, eid, e))
+            || (e.kind == 'cleanup' && cleanupEntry(uid, eid, e))
+            || (e.kind == 'release' && releaseEntry(uid, eid, e))
+            || (e.kind == 'reward' && rewardEntry(e))
+            || (e.kind == 'gift_out' && giftOutEntry(uid, eid, e))
+            || (e.kind == 'gift_in' && giftInEntry(uid, eid, e));
+        }
+
+        function reportEntry(uid, eid, e) {
+          let s = getAfter(spotPath(e.spotId)).data;
+          return e.keys().hasOnly(['kind', 'spotId', 'title', 'balanceDelta', 'heldDelta', 'at'])
+            && eid == 'report_' + e.spotId
+            && !exists(spotPath(e.spotId))
+            && s.uid == uid
+            && e.heldDelta == 10 && e.balanceDelta == 0;
+        }
+
+        function cleanupEntry(uid, eid, e) {
+          let s = getAfter(spotPath(e.spotId)).data;
+          return e.keys().hasOnly(['kind', 'spotId', 'title', 'balanceDelta', 'heldDelta', 'at'])
+            && eid == 'clean_' + e.spotId
+            && get(spotPath(e.spotId)).data.status == 'claimed'
+            && s.status == 'cleaned' && s.cleanedBy == uid
+            && e.heldDelta == points(s.size) && e.balanceDelta == 0;
+        }
+
+        // Held points become usable 7 days later, if the spot still exists and wasn't rejected.
+        function releaseEntry(uid, eid, e) {
+          let c = get(entryPath(uid, e.source + '_' + e.spotId)).data;
+          return e.keys().hasOnly(['kind', 'source', 'spotId', 'title', 'balanceDelta', 'heldDelta', 'at'])
+            && e.source in ['report', 'clean']
+            && eid == 'release_' + e.source + '_' + e.spotId
+            && c.at + duration.value(7, 'd') <= request.time
+            && exists(spotPath(e.spotId))
+            && get(spotPath(e.spotId)).data.review != 'rejected'
+            && e.balanceDelta == c.heldDelta && e.heldDelta == -c.heldDelta;
+        }
+
+        function rewardEntry(e) {
+          return e.keys().hasOnly(['kind', 'reward', 'code', 'balanceDelta', 'heldDelta', 'at'])
+            && str(e.code, 20)
+            && e.balanceDelta == -rewardCost(e.reward) && e.heldDelta == 0;
+        }
+
+        function giftOutEntry(uid, eid, e) {
+          let g = getAfter(giftPath(e.code)).data;
+          return e.keys().hasOnly(['kind', 'code', 'balanceDelta', 'heldDelta', 'at'])
+            && eid == 'giftout_' + e.code
+            && !exists(giftPath(e.code))
+            && g.from == uid && g.amount == -e.balanceDelta
+            && e.balanceDelta < 0 && e.heldDelta == 0;
+        }
+
+        function giftInEntry(uid, eid, e) {
+          let g = get(giftPath(e.code)).data;
+          let ga = getAfter(giftPath(e.code)).data;
+          return e.keys().hasOnly(['kind', 'code', 'fromName', 'balanceDelta', 'heldDelta', 'at'])
+            && eid == 'giftin_' + e.code
+            && g.claimed == false && g.from != uid
+            && ga.claimed == true && ga.claimedBy == uid
+            && e.balanceDelta == g.amount && e.heldDelta == 0;
+        }
+      }
+    }
+
+    /* ---------------- Gifts (one-time codes) ---------------- */
+
+    match /gifts/{code} {
+      allow get: if signedIn();
+      allow list: if false;
+
+      allow create: if signedIn()
+        && code.size() >= 8 && code.size() <= 20
+        && request.resource.data.keys().hasOnly(['from', 'fromName', 'amount', 'message', 'claimed', 'at'])
+        && request.resource.data.from == request.auth.uid
+        && request.resource.data.amount is int && request.resource.data.amount > 0 && request.resource.data.amount <= 100000
+        && request.resource.data.claimed == false
+        && request.resource.data.at == request.time
+        && str(request.resource.data.get('message', ''), 200)
+        && existsAfter(entryPath(request.auth.uid, 'giftout_' + code));
+
+      allow update: if signedIn()
+        && changed().hasOnly(['claimed', 'claimedBy', 'claimedAt'])
+        && resource.data.claimed == false && resource.data.from != request.auth.uid
+        && request.resource.data.claimed == true
+        && request.resource.data.claimedBy == request.auth.uid
+        && request.resource.data.claimedAt == request.time
+        && existsAfter(entryPath(request.auth.uid, 'giftin_' + code));
+
+      allow delete: if false;
+    }
+
+    /* ---------------- Spots ---------------- */
+
+    match /spots/{id} {
+      allow read: if true;
+
+      allow create: if signedIn()
+        && request.resource.data.keys().hasOnly(['uid', 'authorName', 'title', 'place', 'size', 'note', 'hazard',
+             'lat', 'lng', 'acc', 'thumb', 'status', 'claimedBy', 'claimedName', 'claimedAt', 'confirms', 'review', 'createdAt'])
+        && request.resource.data.uid == request.auth.uid
+        && str(request.resource.data.authorName, 80)
+        && str(request.resource.data.title, 80) && request.resource.data.title.size() > 0
+        && str(request.resource.data.place, 80) && request.resource.data.place.size() > 0
+        && str(request.resource.data.note, 400)
+        && request.resource.data.size in ['small', 'medium', 'large']
+        && request.resource.data.hazard is bool
+        && request.resource.data.lat is number && request.resource.data.lng is number && request.resource.data.acc is number
+        && str(request.resource.data.thumb, 80000)
+        && request.resource.data.confirms == 0
+        && request.resource.data.review == 'pending'
+        && request.resource.data.createdAt == request.time
+        && (
+          (request.resource.data.status == 'open' && request.resource.data.claimedBy == null)
+          || (request.resource.data.status == 'claimed' && !request.resource.data.hazard
+              && request.resource.data.claimedBy == request.auth.uid && request.resource.data.claimedAt == request.time)
+        )
+        && existsAfter(entryPath(request.auth.uid, 'report_' + id));
+
+      // Claim an open spot.
+      allow update: if signedIn()
+        && changed().hasOnly(['status', 'claimedBy', 'claimedName', 'claimedAt'])
+        && resource.data.status == 'open' && !resource.data.hazard
+        && request.resource.data.status == 'claimed'
+        && request.resource.data.claimedBy == request.auth.uid
+        && request.resource.data.claimedAt == request.time
+        && str(request.resource.data.claimedName, 80);
+
+      // Release your claim.
+      allow update: if signedIn()
+        && changed().hasOnly(['status', 'claimedBy', 'claimedName', 'claimedAt'])
+        && resource.data.status == 'claimed' && resource.data.claimedBy == request.auth.uid
+        && request.resource.data.status == 'open'
+        && request.resource.data.claimedBy == null && request.resource.data.claimedAt == null;
+
+      // Mark as cleaned, with the after photo taken at the spot.
+      allow update: if signedIn()
+        && changed().hasOnly(['status', 'cleanedBy', 'cleanedName', 'cleanedAt', 'afterLat', 'afterLng', 'afterAcc', 'afterThumb'])
+        && resource.data.status == 'claimed' && resource.data.claimedBy == request.auth.uid
+        && request.resource.data.status == 'cleaned'
+        && request.resource.data.cleanedBy == request.auth.uid
+        && request.resource.data.cleanedAt == request.time
+        && str(request.resource.data.cleanedName, 80)
+        && str(request.resource.data.afterThumb, 80000)
+        && nearSpot()
+        && ownReportRule()
+        && existsAfter(entryPath(request.auth.uid, 'clean_' + id));
+
+      // Someone else confirms the spot is real ("I saw it too").
+      allow update: if signedIn()
+        && changed().hasOnly(['confirms'])
+        && resource.data.uid != request.auth.uid
+        && request.resource.data.confirms == resource.data.confirms + 1
+        && !exists(/databases/$(database)/documents/spots/$(id)/confirms/$(request.auth.uid))
+        && existsAfter(/databases/$(database)/documents/spots/$(id)/confirms/$(request.auth.uid));
+
+      // Moderators approve or reject.
+      allow update: if isAdmin()
+        && changed().hasOnly(['review', 'reviewedBy', 'reviewedAt'])
+        && request.resource.data.review in ['pending', 'approved', 'rejected']
+        && request.resource.data.reviewedBy == request.auth.uid
+        && request.resource.data.reviewedAt == request.time;
+
+      allow delete: if isAdmin();
+
+      // ~100 m (with GPS tolerance), using a flat-earth approximation that's
+      // accurate enough at Uzbekistan's latitudes (cos 41° ≈ 0.76).
+      function nearSpot() {
+        let dy = (request.resource.data.afterLat - resource.data.lat) * 111320;
+        let dx = (request.resource.data.afterLng - resource.data.lng) * 111320 * 0.76;
+        return dx * dx + dy * dy <= 150 * 150;
+      }
+
+      // Cleaning your own report counts only after 2 confirmations or 3 days.
+      function ownReportRule() {
+        return resource.data.uid != request.auth.uid
+          || resource.data.confirms >= 2
+          || resource.data.createdAt + duration.value(3, 'd') <= request.time;
+      }
+
+      match /confirms/{uid} {
+        allow read: if true;
+        allow create: if signedIn() && request.auth.uid == uid
+          && request.resource.data.keys().hasOnly(['at'])
+          && request.resource.data.at == request.time
+          && get(/databases/$(database)/documents/spots/$(id)).data.uid != uid;
+        allow update, delete: if false;
+      }
+    }
+
+    /* ---------------- Full-size photos ---------------- */
+
+    match /spotPhotos/{pid} {
+      allow read: if true;
+      allow create: if signedIn()
+        && request.resource.data.keys().hasOnly(['uid', 'data'])
+        && request.resource.data.uid == request.auth.uid
+        && str(request.resource.data.data, 700000)
+        && (
+          existsAfter(entryPath(request.auth.uid, 'report_' + pid))
+          || existsAfter(entryPath(request.auth.uid, 'clean_' + pid.split('_after')[0]))
+        );
+      allow update, delete: if isAdmin();
+    }
+  }
+}

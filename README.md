@@ -21,20 +21,57 @@ Points can't be exchanged for money.
 | `css/app.css` | App styles |
 | `js/site.js` | Header, mobile menu, scroll reveal and before/after slider |
 | `js/story.js` | Hero scroll story, painted on a canvas: a procedurally grown tree, landscape, grass and realistic rubbish; scroll plays Fix → Clean → Verify → Reward |
-| `js/app.js` | App logic: reports, cleanups, points, rewards, gifts and the certificate |
+| `js/app.js` | App screens: spots, report form, camera, rewards, gift codes, certificate, moderation |
+| `js/backend.js` | Firebase connection and Google sign-in |
+| `js/yq-data.js` | Every database write (reports, cleanups, points, gifts, rewards), shared with the tests |
+| `js/firebase-config.js` | Public Firebase project identifiers |
+| `js/vendor/firebase.js` | The Firebase SDK, bundled so the site doesn't depend on another CDN |
+| `firestore.rules` | Security rules: who may write what, and the fair-play checks |
+| `tests/` | Automated security-rules tests (run against the Firebase emulator) |
 | `js/i18n.js` | Translations (Uzbek, Russian, English) and the language switcher |
 
-## Fair play (anti-cheating)
+## Backend (Firebase)
 
-The landing page has a **Fair play** section explaining the rules. What the prototype already enforces:
+The app uses **Firebase** on the free Spark plan: Google sign-in and a Firestore database. Photos are compressed in the browser and stored in Firestore (no paid Cloud Storage needed).
 
-- **Live camera only.** There is no file picker: photos come from the camera inside the page (`getUserMedia`), so gallery uploads aren't possible.
-- **GPS and time on every photo.** Taking a photo needs location permission; coordinates, accuracy and time are saved and burned into the image.
-- **100 m rule.** An "after" photo taken more than 100 m from the original spot is rejected (with a small allowance for GPS accuracy).
+- Anyone can browse spots. Reporting, cleaning, rewards and gifts need a Google sign-in.
+- Every change to points is one atomic write that records the event, a ledger entry and the user's totals; `firestore.rules` checks that all three agree, so points can't be invented from the browser.
 
-Described on the site but needing a backend first: no instant points for cleaning your own report (2 confirmations or 3 days), a 7-day hold on new points, one account per phone number with SMS verification, a daily limit of 3 cleanups, and partner checks for large cleanups.
+### Fair play, enforced by the server
 
-The camera and location only work on HTTPS (e.g. GitHub Pages) or when opened locally.
+| Rule | Where |
+| --- | --- |
+| Photos only from the live in-page camera, with GPS and time stamped in | browser |
+| "After" photo must be within ~100 m of the spot | browser + rules |
+| Report (+10) and cleanup (+50/120/250) points are **held for 7 days** before they can be spent | rules |
+| A moderator can reject a cleanup; rejected points are never released | rules |
+| Cleaning **your own** report only counts after 2 confirmations from others or 3 days | rules |
+| At most **3 cleanups per day** per person | rules |
+| Balances can never go below zero; reward prices are fixed | rules |
+| Gifts are one-time codes; a code can't be reused or redeemed by its sender | rules |
+
+### Publishing the security rules
+
+Firebase console → **Firestore** → **Rules** → paste the contents of `firestore.rules` → **Publish**. Do this again whenever `firestore.rules` changes.
+
+### Adding a moderator
+
+1. The person signs in on the site once.
+2. Firebase console → **Authentication** → **Users** → copy their **User UID**.
+3. Firebase console → **Firestore** → **Start collection** `admins` → **Document ID** = that UID → add any field (e.g. `note` = `owner`) → **Save**.
+4. They reload the site and see **Approve / Reject** on cleaned spots.
+
+### Running the tests
+
+Needs Node.js and Java 11+.
+
+```bash
+cd tests
+npm install
+npm test
+```
+
+This starts the Firestore emulator and runs 38 checks: honest actions must succeed and cheating attempts (inventing points, inflated rewards, cleaning from far away, early releases, reused gift codes and more) must be refused. You can also open `app.html?emulator` while running `firebase emulators:start` to try the whole app locally with test accounts.
 
 ## Languages
 
@@ -54,11 +91,10 @@ python -m http.server 8000
 
 Then go to http://localhost:8000.
 
-## Current limitations (prototype)
+## Current limitations
 
-- Data (spots, photos, points) is stored in the browser's `localStorage`, so each visitor only sees their own spots.
 - The rewards in `js/app.js` (`REWARDS`) are examples until real partners are signed up. Redeeming gives a code, but no partner checks it yet.
-- Cleanups are not reviewed yet; points and certificate entries are added straight away. Certificates are marked "Sample · preview version" for this reason.
+- Certificates are marked "Sample · preview version" until verification by partners is in place.
 - Volunteer hours are estimated from the cleanup size (small 0.5 h, medium 1.5 h, large 3 h).
-
-Making it a real product needs a backend with user accounts, a shared database and photo storage, a verification step (see the anti-cheating ideas: no cleanup points on your own report until others confirm it, holds before rewards, phone verification, limits), and a way for partners to check reward codes and certificate numbers.
+- Sign-in is Google only for now. Phone-number (SMS) sign-in can be added later.
+- Firestore's free tier covers a pilot comfortably (1 GiB storage, 50,000 reads and 20,000 writes per day); each photo takes about 100–300 KB.

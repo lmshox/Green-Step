@@ -34,7 +34,8 @@
           <option value="en">EN</option>
         </select>
       </label>
-      <a href="#wallet" class="points-pill" data-i18n-title="a.pill" title="Ballaringiz">
+      <div id="account" class="account"></div>
+      <a href="#wallet" class="points-pill" hidden data-i18n-title="a.pill" title="Ballaringiz">
         <span class="dot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 17h4v-4h4V9h4"/></svg></span>
         <span class="mono" data-balance>0</span> <span data-unit>ball</span>
       </a>
@@ -45,7 +46,7 @@
 <div class="demo-note">
   <div class="wrap">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
-    <span data-i18n="a.demo">Sinov versiyasi: joylar va ballar faqat shu brauzerda saqlanadi, sovg‘alar hozircha namuna sifatida ko‘rsatilgan.</span>
+    <span data-i18n="a.demo">Sinov bosqichi: platforma ishlayapti, lekin hamkorlar sovg‘alari hozircha namuna sifatida ko‘rsatilgan.</span>
   </div>
 </div>
 
@@ -89,6 +90,7 @@
         </div>
       </div>
 
+      <div class="auth-gate" id="gate-report" hidden></div>
       <form class="form-grid" id="report-form" novalidate>
         <div>
           <div class="card">
@@ -166,7 +168,8 @@
         </div>
       </div>
 
-      <div class="wallet-grid">
+      <div class="auth-gate" id="gate-wallet" hidden></div>
+      <div class="wallet-grid" id="wallet-main">
         <div>
           <div class="balance">
             <svg class="bg" viewBox="0 0 400 400" fill="none" stroke="#c6d49a" stroke-width="2" aria-hidden="true">
@@ -174,6 +177,7 @@
             </svg>
             <div class="lbl" data-i18n="a.w.available">Mavjud balans</div>
             <div class="big"><span data-balance>0</span><small data-unit>ball</small></div>
+            <div class="cash" data-held-line></div>
             <div class="cash" data-i18n="a.w.hours_line">Ko‘ngillilik soatlari: <b data-hours>0 soat</b></div>
             <div class="stats">
               <div><b data-stat="reports">0</b><span data-i18n="a.w.reports">Xabarlar</span></div>
@@ -200,30 +204,7 @@
             <div class="reward-list" id="reward-list"></div>
           </div>
 
-          <form id="gift-form" novalidate hidden>
-            <div class="field">
-              <label for="g-to" data-i18n="a.g.to">Qabul qiluvchi</label>
-              <input class="input" id="g-to" type="text" data-i18n-ph="a.g.to_ph" placeholder="Ism, email yoki foydalanuvchi nomi">
-            </div>
-            <div class="field">
-              <label for="g-amount" data-i18n="a.g.amount">Yuboriladigan ball</label>
-              <input class="input mono" id="g-amount" type="number" min="1" step="1" placeholder="100">
-              <div class="quick" data-quick="g-amount">
-                <button type="button" data-v="50">50</button>
-                <button type="button" data-v="100">100</button>
-                <button type="button" data-v="250">250</button>
-                <button type="button" data-v="max" data-i18n="a.c.all">Hammasi</button>
-              </div>
-            </div>
-            <div class="field">
-              <label for="g-msg" data-i18n="a.g.msg">Xabar <span class="opt">(ixtiyoriy)</span></label>
-              <textarea class="textarea" id="g-msg" maxlength="200" data-i18n-ph="a.g.msg_ph" placeholder="Parkdagi yordamingiz uchun rahmat!"></textarea>
-            </div>
-            <div class="form-actions">
-              <span class="form-error" id="gift-error" role="alert"></span>
-              <button type="submit" class="btn btn-green" data-i18n="a.g.submit">Sovg‘ani yuborish</button>
-            </div>
-          </form>
+          <div id="gift-panel" hidden></div>
 
           <form id="cert-form" novalidate hidden>
             <p class="sub" style="margin:0 0 4px" data-i18n="a.cert.sub">Har bir tasdiqlangan tozalash sertifikatingizga avtomatik qo‘shiladi. Uni chop etish yoki PDF sifatida saqlash mumkin.</p>
@@ -287,7 +268,8 @@
   <span id="toast-text"></span>
 </div>
 
+<script src="js/firebase-config.js"></script>
 <script src="js/site.js"></script>
-<script src="js/app.js"></script>
+<script type="module" src="js/app.js"></script>
 </body>
 </html>
