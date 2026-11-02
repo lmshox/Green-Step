@@ -402,3 +402,9 @@ section { position: relative; }
 /* Instrument Serif has no Cyrillic, so Russian uses Lora italic for accents */
 html[lang="ru"] .serif { font-family: "Lora", Georgia, serif; font-style: italic; letter-spacing: -0.02em; }
 html[lang="ru"] .hero h1 { font-size: clamp(40px, 5.2vw, 68px); }
+.brand { white-space: nowrap; }
+@media (max-width: 420px) {
+  .lang { padding: 0 8px; }
+  .lang svg { display: none; }
+  .header-actions { gap: 8px; }
+}

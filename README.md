@@ -6,18 +6,21 @@ Yashil Qadam ("Green Step" in Uzbek) is a website where anyone can:
 
 1. **Report** a polluted spot: upload a photo, add the location and estimate how much waste is there (+10 pts).
 2. **Clean it up** (optional): claim a spot, then upload an "after" photo when it's done (+50 / +120 / +250 pts depending on size).
-3. **Redeem** points: cash out (1,000 pts = $5.00, minimum 1,000) or gift points to someone else.
+3. **Get rewarded**: swap points for gifts from partners (a coffee, an eco-bag, a tree planted in your name…), or gift points to someone else.
+4. **Get a volunteer certificate**: after the first verified cleanup, download a certificate with your name, number of cleanups, volunteer hours and a certificate number (print or save as PDF).
+
+Points can't be exchanged for money.
 
 ## Pages
 
 | File | What it is |
 | --- | --- |
 | `index.html` | Landing page |
-| `app.html` | The app: Spots, Report and Wallet tabs |
+| `app.html` | The app: Spots, Report and Rewards tabs |
 | `css/styles.css` | Shared design system and landing styles |
 | `css/app.css` | App styles |
 | `js/site.js` | Header, mobile menu, scroll reveal and before/after slider |
-| `js/app.js` | App logic: reports, cleanups, points, cash out and gifts |
+| `js/app.js` | App logic: reports, cleanups, points, rewards, gifts and the certificate |
 | `js/i18n.js` | Translations (Uzbek, Russian, English) and the language switcher |
 
 ## Languages
@@ -41,7 +44,8 @@ Then go to http://localhost:8000.
 ## Current limitations (prototype)
 
 - Data (spots, photos, points) is stored in the browser's `localStorage`, so each visitor only sees their own spots.
-- Cash-outs and gifts are recorded in the wallet, but **no real money is sent**.
-- Cleanups are not reviewed yet; points are added straight away.
+- The rewards in `js/app.js` (`REWARDS`) are examples until real partners are signed up. Redeeming gives a code, but no partner checks it yet.
+- Cleanups are not reviewed yet; points and certificate entries are added straight away. Certificates are marked "Sample · preview version" for this reason.
+- Volunteer hours are estimated from the cleanup size (small 0.5 h, medium 1.5 h, large 3 h).
 
-Making it a real product needs a backend with user accounts, a shared database and photo storage, a moderation/verification step, and a payout provider (e.g. PayPal Payouts or Stripe Connect).
+Making it a real product needs a backend with user accounts, a shared database and photo storage, a verification step (see the anti-cheating ideas: no cleanup points on your own report until others confirm it, holds before rewards, phone verification, limits), and a way for partners to check reward codes and certificate numbers.
