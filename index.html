@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title data-i18n="l.meta.title">Yashil Qadam — Ifloslanish haqida xabar bering. Tozalang. Mukofot oling.</title>
   <meta name="description" data-i18n-content="l.meta.desc" content="Yashil Qadam yordamida har kim ifloslangan joyni suratga olib, xaritaga qo‘shishi va uni tozalashi mumkin. Tasdiqlangan tozalash uchun ball, hamkorlardan sovg‘alar va ko‘ngillilik sertifikati beriladi.">
-  <meta name="theme-color" content="#f5f4ee">
+  <meta name="theme-color" content="#f3f0e6">
   <link rel="icon" href="assets/logo.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -49,113 +49,7 @@
   <!-- Hero: scroll story -->
   <section class="story" id="story">
     <div class="story-sticky">
-      <svg class="story-svg" viewBox="0 0 1600 1000" preserveAspectRatio="xMidYMid slice" role="img" data-i18n-aria="l.story.aria" aria-label="Katta yashil daraxt. Pastga surilganda uning tagida axlat paydo bo‘ladi, so‘ng ko‘ngillilar uni tozalaydi va joy yana yashil bo‘ladi.">
-        <defs>
-          <linearGradient id="sg-sky" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0" stop-color="#e3ecd9"/>
-            <stop offset="1" stop-color="#f4f2e8"/>
-          </linearGradient>
-          <linearGradient id="sg-ground" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0" stop-color="#a3bd8c"/>
-            <stop offset="1" stop-color="#7f9f6c"/>
-          </linearGradient>
-          <linearGradient id="sg-trunk" x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0" stop-color="#5b4632"/>
-            <stop offset=".55" stop-color="#735a41"/>
-            <stop offset="1" stop-color="#5b4632"/>
-          </linearGradient>
-        </defs>
-
-        <g id="world">
-          <!-- sky -->
-          <rect x="-900" y="-900" width="3400" height="2500" fill="url(#sg-sky)"/>
-          <g fill="#ffffff" opacity=".75">
-            <ellipse cx="180" cy="160" rx="120" ry="34"/><ellipse cx="260" cy="140" rx="80" ry="36"/>
-            <ellipse cx="1420" cy="90" rx="110" ry="30"/><ellipse cx="1360" cy="76" rx="64" ry="28"/>
-            <ellipse cx="-120" cy="420" rx="140" ry="32"/>
-          </g>
-
-          <!-- hills -->
-          <path d="M-900 1330 C-500 1240 -200 1290 100 1250 C420 1206 640 1280 900 1240 C1180 1196 1420 1260 1700 1220 C2000 1180 2300 1240 2500 1220 L2500 1600 L-900 1600Z" fill="#c4d3bb"/>
-          <path d="M-900 1420 C-560 1360 -260 1400 80 1370 C380 1344 620 1400 940 1372 C1240 1346 1480 1392 1760 1364 C2060 1336 2300 1380 2500 1370 L2500 1600 L-900 1600Z" fill="#b1c6a3"/>
-
-          <!-- ground -->
-          <path d="M-900 1505 C-500 1488 -100 1514 300 1500 C600 1490 760 1512 1000 1502 C1300 1490 1700 1516 2100 1498 C2300 1490 2400 1500 2500 1500 L2500 2300 L-900 2300Z" fill="url(#sg-ground)"/>
-          <path id="dirt" d="M-900 1505 C-500 1488 -100 1514 300 1500 C600 1490 760 1512 1000 1502 C1300 1490 1700 1516 2100 1498 C2300 1490 2400 1500 2500 1500 L2500 2300 L-900 2300Z" fill="#8c7f5d" opacity="0"/>
-          <path id="lush" d="M-900 1505 C-500 1488 -100 1514 300 1500 C600 1490 760 1512 1000 1502 C1300 1490 1700 1516 2100 1498 C2300 1490 2400 1500 2500 1500 L2500 2300 L-900 2300Z" fill="#b9dc84" opacity="0"/>
-          <g fill="none" stroke="#6f9160" stroke-width="3" stroke-linecap="round" opacity=".55">
-            <path d="M380 1600 l-6 -16 M388 1600 l2 -18 M396 1600 l8 -14"/>
-            <path d="M1180 1640 l-6 -16 M1188 1640 l2 -18 M1196 1640 l8 -14"/>
-            <path d="M540 1860 l-6 -16 M548 1860 l2 -18 M556 1860 l8 -14"/>
-            <path d="M1060 1930 l-6 -16 M1068 1930 l2 -18 M1076 1930 l8 -14"/>
-            <path d="M250 1780 l-6 -16 M258 1780 l2 -18 M266 1780 l8 -14"/>
-            <path d="M1320 1800 l-6 -16 M1328 1800 l2 -18 M1336 1800 l8 -14"/>
-            <path d="M840 1960 l-6 -16 M848 1960 l2 -18 M856 1960 l8 -14"/>
-          </g>
-          <ellipse cx="800" cy="1548" rx="210" ry="22" fill="#6f8f5d" opacity=".45"/>
-
-          <!-- tree -->
-          <g class="tree-in">
-            <path d="M700 1560 C724 1540 748 1520 756 1470 L772 700 L828 700 L844 1470 C852 1520 876 1540 900 1560 C860 1556 830 1548 800 1548 C770 1548 740 1556 700 1560Z" fill="url(#sg-trunk)"/>
-            <path d="M708 1560 C680 1566 640 1572 610 1586 M892 1560 C920 1566 960 1572 990 1588 M770 1552 C752 1570 730 1590 716 1606 M832 1552 C850 1570 872 1590 888 1604" stroke="#5b4632" stroke-width="12" stroke-linecap="round" fill="none"/>
-            <path d="M790 1000 C790 1080 786 1180 790 1260 M812 900 C814 980 810 1060 814 1120" stroke="#4d3b2a" stroke-width="3" stroke-linecap="round" fill="none" opacity=".45"/>
-            <path d="M786 900 C730 820 650 760 560 700 M814 860 C870 790 950 740 1040 690 M800 760 C800 640 800 520 800 420" stroke="#5b4632" stroke-width="26" stroke-linecap="round" fill="none"/>
-          </g>
-          <g class="canopy-in">
-            <g class="canopy-sway">
-              <g fill="#2a5a3f">
-                <circle cx="800" cy="330" r="300"/><circle cx="560" cy="430" r="215"/><circle cx="1040" cy="430" r="215"/>
-                <circle cx="680" cy="220" r="190"/><circle cx="930" cy="210" r="200"/><circle cx="420" cy="570" r="150"/><circle cx="1180" cy="570" r="150"/>
-              </g>
-              <g fill="#3a7652">
-                <circle cx="800" cy="420" r="250"/><circle cx="600" cy="530" r="180"/><circle cx="1000" cy="530" r="180"/>
-                <circle cx="720" cy="300" r="170"/><circle cx="890" cy="290" r="170"/><circle cx="470" cy="620" r="110"/><circle cx="1130" cy="620" r="110"/>
-              </g>
-              <g fill="#4f8c63">
-                <circle cx="700" cy="610" r="150"/><circle cx="900" cy="610" r="150"/><circle cx="800" cy="520" r="170"/>
-                <circle cx="530" cy="660" r="105"/><circle cx="1070" cy="660" r="105"/><circle cx="780" cy="300" r="120"/>
-              </g>
-              <g fill="#6aa775" opacity=".9">
-                <circle cx="650" cy="560" r="62"/><circle cx="850" cy="470" r="70"/><circle cx="740" cy="240" r="58"/>
-                <circle cx="1000" cy="600" r="50"/><circle cx="500" cy="630" r="42"/><circle cx="940" cy="300" r="52"/>
-              </g>
-              <g fill="#d4ec7a" opacity=".35">
-                <circle cx="630" cy="540" r="18"/><circle cx="830" cy="448" r="22"/><circle cx="724" cy="222" r="16"/><circle cx="924" cy="282" r="14"/>
-              </g>
-            </g>
-          </g>
-
-          <!-- falling leaves -->
-          <g class="leaves" fill="#5a9468">
-            <g transform="translate(560 640)"><path class="leaf l1" d="M0 -9 C7 -6 9 3 0 9 C-9 3 -7 -6 0 -9Z"/></g>
-            <g transform="translate(980 660)"><path class="leaf l2" d="M0 -9 C7 -6 9 3 0 9 C-9 3 -7 -6 0 -9Z" fill="#7fae7b"/></g>
-            <g transform="translate(720 720)"><path class="leaf l3" d="M0 -9 C7 -6 9 3 0 9 C-9 3 -7 -6 0 -9Z"/></g>
-            <g transform="translate(1100 600)"><path class="leaf l4" d="M0 -9 C7 -6 9 3 0 9 C-9 3 -7 -6 0 -9Z" fill="#7fae7b"/></g>
-            <g transform="translate(450 600)"><path class="leaf l5" d="M0 -9 C7 -6 9 3 0 9 C-9 3 -7 -6 0 -9Z"/></g>
-          </g>
-
-          <!-- grey "polluted" tint: above the scenery, below the rubbish and markers -->
-          <rect id="dull" x="-900" y="-900" width="3400" height="3400" fill="#7f7a66" opacity="0"/>
-
-          <!-- filled by js/story.js -->
-          <g id="flowers"></g>
-          <g id="rubbish"></g>
-          <g id="pins"></g>
-          <g id="bag" opacity="0">
-            <ellipse cx="0" cy="44" rx="52" ry="9" fill="#55704a" opacity=".5"/>
-            <path d="M-46 40 C-60 0 -44 -40 -16 -50 L-10 -62 L10 -62 L16 -50 C44 -40 60 0 46 40 C30 52 -30 52 -46 40Z" fill="#24412f"/>
-            <path d="M-26 -30 C-36 -10 -36 14 -28 30" stroke="#3d6a4d" stroke-width="6" stroke-linecap="round" fill="none"/>
-            <path d="M-10 -62 L-22 -78 L0 -67 L22 -78 L10 -62Z" fill="#1a3022"/>
-          </g>
-          <g id="check" opacity="0">
-            <circle r="92" fill="none" stroke="#d4ec7a" stroke-width="6"/>
-            <circle r="72" fill="#2c6a4b"/>
-            <path d="M-30 2 L-8 24 L32 -20" stroke="#fff" stroke-width="14" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-          </g>
-        </g>
-
-        <rect id="flash" x="-900" y="-200" width="3400" height="1400" fill="#ffffff" opacity="0"/>
-      </svg>
+      <canvas class="story-canvas" id="story-canvas" role="img" data-i18n-aria="l.story.aria" aria-label="Katta yashil daraxt. Pastga surilganda uning tagida axlat paydo bo‘ladi, so‘ng ko‘ngillilar uni tozalaydi va joy yana yashil bo‘ladi."></canvas>
 
       <div class="story-intro" id="story-intro">
         <span class="eyebrow" data-i18n="l.hero.eyebrow">Jamoaviy tozalash — mukofot bilan</span>
@@ -494,7 +388,7 @@
   <section>
     <div class="wrap">
       <div class="cta reveal">
-        <svg class="cta-lines" viewBox="0 0 400 400" fill="none" stroke="#d4ec7a" stroke-width="1.2" aria-hidden="true">
+        <svg class="cta-lines" viewBox="0 0 400 400" fill="none" stroke="#c6d49a" stroke-width="1.2" aria-hidden="true">
           <path d="M200 40 C290 40 360 110 360 200 C360 290 290 360 200 360 C110 360 40 290 40 200 C40 110 110 40 200 40Z"/>
           <path d="M205 75 C275 72 330 130 328 200 C326 268 272 326 202 324 C132 322 76 270 76 200 C76 130 135 78 205 75Z"/>
           <path d="M208 110 C258 106 296 150 294 200 C292 248 254 290 204 288 C154 286 112 250 112 200 C112 150 158 114 208 110Z"/>

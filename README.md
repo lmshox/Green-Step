@@ -20,7 +20,7 @@ Points can't be exchanged for money.
 | `css/styles.css` | Shared design system and landing styles |
 | `css/app.css` | App styles |
 | `js/site.js` | Header, mobile menu, scroll reveal and before/after slider |
-| `js/story.js` | Hero scroll story: tree → rubbish → Fix, Clean, Verify, Reward |
+| `js/story.js` | Hero scroll story, painted on a canvas: a procedurally grown tree, landscape, grass and realistic rubbish; scroll plays Fix → Clean → Verify → Reward |
 | `js/app.js` | App logic: reports, cleanups, points, rewards, gifts and the certificate |
 | `js/i18n.js` | Translations (Uzbek, Russian, English) and the language switcher |
 
