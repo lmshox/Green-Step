@@ -516,3 +516,7 @@ html[lang="ru"] .story-intro h1 { font-size: clamp(36px, 4.6vw, 64px); }
   .story-hint { flex-direction: row; gap: 6px; align-items: center; height: 36px; padding: 0 14px; border-radius: 999px; background: rgba(245, 244, 238, .85); backdrop-filter: blur(8px); }
   .story-hint svg { width: 14px; height: 14px; }
 }
+.story-chips { display: flex; flex-wrap: wrap; gap: 8px 18px; margin-top: 22px; font-size: 14px; color: var(--ink-2); }
+.story-chips > span { display: inline-flex; align-items: center; gap: 7px; }
+.story-chips svg { width: 15px; height: 15px; color: var(--green-2); flex: none; }
+@media (max-width: 760px), (max-aspect-ratio: 21/20) { .story-chips { margin-top: 14px; font-size: 13px; gap: 6px 14px; } }

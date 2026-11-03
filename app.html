@@ -15,6 +15,11 @@
   <meta property="og:image" content="https://lmshox.github.io/Green-Step/assets/og-image.jpg">
   <meta name="twitter:card" content="summary_large_image">
   <link rel="icon" href="assets/logo.svg" type="image/svg+xml">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Yashil Qadam">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&family=Lora:ital,wght@1,400;1,500&display=swap" rel="stylesheet">
@@ -58,6 +63,8 @@
   </div>
 </div>
 
+<div class="offline-bar" id="offline-bar" role="status" hidden></div>
+
 <main class="app-main">
   <div class="wrap">
 
@@ -73,6 +80,7 @@
           <span data-i18n="a.spots.add">Joy qo‘shish</span>
         </a>
       </div>
+      <div class="install-card" id="install-card" hidden></div>
       <div class="toolbar">
         <div class="seg" role="tablist" data-i18n-aria="a.filter.aria" aria-label="Joylarni saralash">
           <button class="active" data-filter="all"><span data-i18n="a.filter.all">Hammasi</span> <span class="count" data-count="all">0</span></button>

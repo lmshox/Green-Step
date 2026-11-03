@@ -19,8 +19,10 @@ export const MAX_DISTANCE = 100;
 
 const DAY = 86400000;
 
-export function makeData(api, db) {
+export function makeData(api, db, opts = {}) {
   const { doc, collection, getDoc, writeBatch, serverTimestamp, increment, Timestamp } = api;
+  // How a batch is sent; the browser swaps this for an offline-friendly version.
+  const send = opts.commit || ((b) => b.commit());
 
   const userRef = (uid) => doc(db, "users", uid);
   const entryRef = (uid, eid) => doc(db, "users", uid, "ledger", eid);
@@ -55,14 +57,14 @@ export function makeData(api, db) {
       };
       const b = writeBatch(db);
       b.set(ref, data);
-      await b.commit();
+      await send(b);
       return data;
     },
 
     async updateProfile(uid, fields) {
       const b = writeBatch(db);
       b.update(userRef(uid), fields);
-      await b.commit();
+      await send(b);
     },
 
     /** Report a spot: spot + full photo + held points, in one write. */
@@ -82,20 +84,20 @@ export function makeData(api, db) {
       b.set(doc(db, "spotPhotos", id), { uid, data: photo });
       b.set(entryRef(uid, eid), { kind: "report", spotId: id, title: s.title, balanceDelta: 0, heldDelta: REPORT_POINTS, at: serverTimestamp() });
       b.update(userRef(uid), totals(eid, 0, REPORT_POINTS));
-      await b.commit();
+      await send(b);
       return id;
     },
 
     async claimSpot(uid, name, id) {
       const b = writeBatch(db);
       b.update(spotRef(id), { status: "claimed", claimedBy: uid, claimedName: name.slice(0, 80), claimedAt: serverTimestamp() });
-      await b.commit();
+      await send(b);
     },
 
     async unclaimSpot(id) {
       const b = writeBatch(db);
       b.update(spotRef(id), { status: "open", claimedBy: null, claimedName: null, claimedAt: null });
-      await b.commit();
+      await send(b);
     },
 
     /** "I saw it too": a second person confirms the spot is real. */
@@ -103,7 +105,7 @@ export function makeData(api, db) {
       const b = writeBatch(db);
       b.set(doc(db, "spots", id, "confirms", uid), { at: serverTimestamp() });
       b.update(spotRef(id), { confirms: increment(1) });
-      await b.commit();
+      await send(b);
     },
 
     async hasConfirmed(uid, id) {
@@ -126,7 +128,7 @@ export function makeData(api, db) {
       b.set(doc(db, "spotPhotos", id + "_after"), { uid, data: after.photo });
       b.set(entryRef(uid, eid), { kind: "cleanup", spotId: id, title: spot.title, balanceDelta: 0, heldDelta: pts, at: serverTimestamp() });
       b.update(userRef(uid), totals(eid, 0, pts, { dayStart: today, cleanupsToday: sameDay ? (user.cleanupsToday || 0) + 1 : 1 }));
-      await b.commit();
+      await send(b);
     },
 
     /** Move matured held points (7+ days old, not rejected) to the usable balance. */
@@ -145,7 +147,7 @@ export function makeData(api, db) {
         const b = writeBatch(db);
         b.set(entryRef(uid, eid), { kind: "release", source, spotId: e.spotId, title: e.title || "", balanceDelta: e.heldDelta, heldDelta: -e.heldDelta, at: serverTimestamp() });
         b.update(userRef(uid), totals(eid, e.heldDelta, -e.heldDelta));
-        try { await b.commit(); released += e.heldDelta; } catch (err) { /* not due yet by server clock; try later */ }
+        try { await send(b); released += e.heldDelta; } catch (err) { /* not due yet by server clock; try later */ }
       }
       return released;
     },
@@ -157,7 +159,7 @@ export function makeData(api, db) {
       const b = writeBatch(db);
       b.set(ref, { kind: "reward", reward, code, balanceDelta: -cost, heldDelta: 0, at: serverTimestamp() });
       b.update(userRef(uid), totals(ref.id, -cost, 0));
-      await b.commit();
+      await send(b);
       return code;
     },
 
@@ -169,7 +171,7 @@ export function makeData(api, db) {
       b.set(doc(db, "gifts", code), { from: uid, fromName: name.slice(0, 80), amount, message: (message || "").slice(0, 200), claimed: false, at: serverTimestamp() });
       b.set(entryRef(uid, eid), { kind: "gift_out", code, balanceDelta: -amount, heldDelta: 0, at: serverTimestamp() });
       b.update(userRef(uid), totals(eid, -amount, 0));
-      await b.commit();
+      await send(b);
       return code;
     },
 
@@ -187,14 +189,14 @@ export function makeData(api, db) {
       b.update(gref, { claimed: true, claimedBy: uid, claimedAt: serverTimestamp() });
       b.set(entryRef(uid, eid), { kind: "gift_in", code, fromName: gift.fromName || "", balanceDelta: gift.amount, heldDelta: 0, at: serverTimestamp() });
       b.update(userRef(uid), totals(eid, gift.amount, 0));
-      await b.commit();
+      await send(b);
       return gift;
     },
 
     async moderate(adminUid, id, review) {
       const b = writeBatch(db);
       b.update(spotRef(id), { review, reviewedBy: adminUid, reviewedAt: serverTimestamp() });
-      await b.commit();
+      await send(b);
     },
 
     async isAdmin(uid) {

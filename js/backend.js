@@ -8,7 +8,15 @@ import { makeData } from "./yq-data.js";
 
 const app = fb.initializeApp(window.FIREBASE_CONFIG);
 const auth = fb.getAuth(app);
-const db = fb.getFirestore(app);
+
+// Keep a local copy of the data so the app works offline; changes made
+// offline are sent automatically when the connection comes back.
+let db;
+try {
+  db = fb.initializeFirestore(app, { localCache: fb.persistentLocalCache({ tabManager: fb.persistentMultipleTabManager() }) });
+} catch (e) {
+  db = fb.getFirestore(app); // e.g. private browsing without IndexedDB
+}
 
 export const EMULATOR = new URLSearchParams(location.search).has("emulator");
 if (EMULATOR) {
@@ -16,7 +24,23 @@ if (EMULATOR) {
   fb.connectFirestoreEmulator(db, "127.0.0.1", 8080);
 }
 
-export const data = makeData(fb, db);
+// Online: wait for the server. Offline: the write is queued on the device and
+// sent later, so don't keep the user waiting; report the outcome when it lands.
+const queued = new Set();
+function commit(batch) {
+  const p = batch.commit();
+  if (navigator.onLine) return p;
+  queued.add(p);
+  p.then(
+    () => { queued.delete(p); window.dispatchEvent(new CustomEvent("yq:synced")); },
+    (err) => { queued.delete(p); window.dispatchEvent(new CustomEvent("yq:sync-failed", { detail: err })); }
+  );
+  window.dispatchEvent(new CustomEvent("yq:queued"));
+  return Promise.resolve();
+}
+export const pendingWrites = () => queued.size;
+
+export const data = makeData(fb, db, { commit });
 export { fb, db, auth };
 
 /** Sign in with Google: a popup, or a full-page redirect if popups are blocked. */

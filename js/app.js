@@ -455,6 +455,8 @@ function errText(e) {
                 <span>${icons.pin}${esc(s.place)}</span>
                 <span>${icons.bag}${esc(sizeLabel(s.size))}</span>
               </div>
+              ${s.status === "cleaned" && s.cleanedName ? `<p class="spot-who done">${icons.check}${esc(t("cleaned_by_short", { name: s.cleanedName }))}</p>`
+                : s.status === "claimed" && s.claimedName ? `<p class="spot-who">${icons.clock}${esc(t("cleaning_by", { name: s.claimedName }))}</p>` : ""}
               <div class="spot-foot">${foot}<span style="color:var(--muted)">${esc(ago(s.createdAt))}</span></div>
             </div>
           </button>`;
@@ -714,7 +716,7 @@ function errText(e) {
         await busy(btn, () => data.cleanSpot(uid, myName(), s, { lat: after.lat, lng: after.lng, acc: after.acc, thumb: after.thumb, photo: after.data }, state.profile));
         fullPhotos[s.id + "_after"] = after.data;
         delete afterShots[s.id];
-        toast(t("toast_cleaned", { n: p }));
+        toast(navigator.onLine ? t("toast_cleaned", { n: p }) : t("offline_saved"));
       }
       // Show the new state straight away (live updates may have arrived mid-write).
       if (openSpotId === s.id && !modal.hidden) {
@@ -779,7 +781,7 @@ function errText(e) {
     e.target.reset();
     reportShot = null;
     renderReportShot();
-    toast(t("toast_reported", { n: REPORT_POINTS }));
+    toast(navigator.onLine ? t("toast_reported", { n: REPORT_POINTS }) : t("offline_saved"));
     location.hash = "#spots";
   });
 
@@ -960,6 +962,7 @@ function errText(e) {
       const err = giftPanel.querySelector("#gift-in-error");
       const code = giftPanel.querySelector("#g-code").value.trim();
       if (!code) return (err.textContent = t("err_code"));
+      if (!navigator.onLine) return (err.textContent = t("offline_needed"));
       try {
         const g = await busy(btn, () => data.claimGift(me(), code));
         giftPanel.querySelector("#g-code").value = "";
@@ -1071,7 +1074,7 @@ function errText(e) {
 
   let releasing = false;
   async function releaseMatured() {
-    if (releasing || !me()) return;
+    if (releasing || !me() || !navigator.onLine) return;
     releasing = true;
     try {
       const got = await data.releaseDue(me(), state.ledger);
@@ -1110,9 +1113,54 @@ function errText(e) {
     ));
   });
 
+  /* ---------------- Offline ---------------- */
+
+  const offlineBar = document.getElementById("offline-bar");
+  function renderOffline() {
+    offlineBar.hidden = navigator.onLine;
+    offlineBar.textContent = t("offline_bar");
+  }
+  window.addEventListener("online", () => { renderOffline(); releaseMatured(); });
+  window.addEventListener("offline", renderOffline);
+  window.addEventListener("yq:synced", () => toast(t("synced")));
+  window.addEventListener("yq:sync-failed", (e) => toast(errText(e.detail)));
+
+  /* ---------------- "Add to home screen" ---------------- */
+
+  const installCard = document.getElementById("install-card");
+  let installPrompt = null;
+  const standalone = () => window.matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;
+  const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent) && !window.MSStream;
+  const installDismissed = () => { try { return localStorage.getItem("yq:install-dismissed") === "1"; } catch (e) { return false; } };
+  function renderInstall() {
+    const show = !standalone() && !installDismissed() && (installPrompt || isIOS);
+    installCard.hidden = !show;
+    if (!show) return;
+    installCard.innerHTML = `
+      <img src="assets/icon-192.png" alt="" width="48" height="48">
+      <div class="ic-text"><b>${esc(t("install_title"))}</b><span>${esc(installPrompt ? t("install_text") : t("install_ios"))}</span></div>
+      ${installPrompt ? `<button class="btn btn-green btn-sm" data-install>${esc(t("install_btn"))}</button>` : ""}
+      <button class="ic-close" data-install-close aria-label="${esc(t("cam_close"))}">×</button>`;
+  }
+  window.addEventListener("beforeinstallprompt", (e) => { e.preventDefault(); installPrompt = e; renderInstall(); });
+  window.addEventListener("appinstalled", () => { installPrompt = null; renderInstall(); });
+  installCard.addEventListener("click", async (e) => {
+    if (e.target.closest("[data-install]") && installPrompt) {
+      installPrompt.prompt();
+      try { await installPrompt.userChoice; } catch (ex) { /* ignore */ }
+      installPrompt = null;
+      renderInstall();
+    } else if (e.target.closest("[data-install-close]")) {
+      try { localStorage.setItem("yq:install-dismissed", "1"); } catch (ex) { /* ignore */ }
+      renderInstall();
+    }
+  });
+
   /* ---------------- Language change ---------------- */
 
   document.addEventListener("langchange", () => {
+    renderOffline();
+    renderInstall();
     renderBalance();
     renderStatic();
     renderReportShot();
@@ -1132,4 +1180,6 @@ function errText(e) {
   renderAccount();
   renderBalance();
   renderStatic();
+  renderOffline();
+  renderInstall();
   route();

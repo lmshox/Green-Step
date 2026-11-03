@@ -47,6 +47,11 @@
     set();
   });
 
+  // Offline support and "add to home screen" (see sw.js).
+  if ("serviceWorker" in navigator && (location.protocol === "https:" || location.hostname === "localhost")) {
+    window.addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(() => {}));
+  }
+
   const year = document.getElementById("year");
   if (year) year.textContent = new Date().getFullYear();
 })();

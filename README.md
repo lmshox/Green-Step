@@ -26,6 +26,7 @@ Points can't be exchanged for money.
 | `js/yq-data.js` | Every database write (reports, cleanups, points, gifts, rewards), shared with the tests |
 | `js/firebase-config.js` | Public Firebase project identifiers |
 | `js/vendor/firebase.js` | The Firebase SDK, bundled so the site doesn't depend on another CDN |
+| `sw.js`, `manifest.webmanifest` | Offline support and "add to home screen" (installable web app) |
 | `firestore.rules` | Security rules: who may write what, and the fair-play checks |
 | `tests/` | Automated security-rules tests (run against the Firebase emulator) |
 | `js/i18n.js` | Translations (Uzbek, Russian, English) and the language switcher |
@@ -49,6 +50,12 @@ The app uses **Firebase** on the free Spark plan: Google sign-in and a Firestore
 | At most **3 cleanups per day** per person | rules |
 | Balances can never go below zero; reward prices are fixed | rules |
 | Gifts are one-time codes; a code can't be reused or redeemed by its sender | rules |
+
+### Offline and installable
+
+- The site can be added to a phone's home screen and opens like an app (`manifest.webmanifest`, icons in `assets/`).
+- `sw.js` keeps a copy of the site's files, so it opens without internet (network first, saved copy as fallback, so updates show up immediately).
+- Firestore keeps a local copy of the data. Reports, claims and cleanups made offline are saved on the device and sent automatically when the connection returns; the server's rules still check them then. Signing in for the first time and redeeming a gift code need internet.
 
 ### Publishing the security rules
 

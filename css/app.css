@@ -437,3 +437,18 @@
 @media (max-width: 440px) {
   .site-header .points-pill { display: none; }
 }
+
+/* ---------- Offline & install ---------- */
+
+.offline-bar { position: sticky; top: 68px; z-index: 40; background: var(--ink); color: var(--paper); font-size: 14px; text-align: center; padding: 10px 16px; }
+.offline-bar[hidden] { display: none; }
+.install-card { display: flex; align-items: center; gap: 14px; margin-bottom: 18px; padding: 14px 16px; border-radius: 16px; background: var(--green-soft); border: 1px solid rgba(33, 61, 44, .14); position: relative; }
+.install-card[hidden] { display: none; }
+.install-card img { width: 48px; height: 48px; border-radius: 12px; flex: none; }
+.install-card .ic-text { flex: 1; min-width: 0; display: grid; gap: 2px; padding-right: 22px; }
+.install-card .ic-text b { font-weight: 600; font-size: 15px; }
+.install-card .ic-text span { font-size: 13px; color: var(--ink-2); }
+.install-card .ic-close { position: absolute; top: 6px; right: 8px; width: 28px; height: 28px; border: 0; background: none; font-size: 20px; line-height: 1; color: var(--muted); cursor: pointer; }
+.spot-who { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--amber); }
+.spot-who.done { color: var(--green-2); }
+.spot-who svg { width: 14px; height: 14px; flex: none; }
