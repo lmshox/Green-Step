@@ -94,7 +94,12 @@
   <!-- Hero: scroll story -->
   <section class="story" id="story">
     <div class="story-sticky">
-      <canvas class="story-canvas" id="story-canvas" role="img" data-i18n-aria="l.story.aria" aria-label="Katta yashil daraxt. Pastga surilganda uning tagida axlat paydo bo‘ladi, so‘ng ko‘ngillilar uni tozalaydi va joy yana yashil bo‘ladi."></canvas>
+      <div class="story-scene" id="story-scene" role="img" data-i18n-aria="l.story.aria" aria-label="Katta yashil daraxt. Pastga surilganda uning tagida axlat paydo bo‘ladi, so‘ng ko‘ngillilar uni tozalaydi va joy yana yashil bo‘ladi."></div>
+      <canvas class="story-canvas" id="story-canvas" aria-hidden="true"></canvas>
+      <div class="story-fx story-rays" id="story-rays" aria-hidden="true"></div>
+      <div class="story-fx story-warm" id="story-warm" aria-hidden="true"></div>
+      <div class="story-fx story-flash" id="story-flash" aria-hidden="true"></div>
+      <div class="story-fx story-vignette" aria-hidden="true"></div>
 
       <div class="story-intro" id="story-intro">
         <span class="eyebrow" data-i18n="l.hero.eyebrow">Jamoaviy tozalash — mukofot bilan</span>

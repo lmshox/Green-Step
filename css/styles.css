@@ -448,7 +448,7 @@ html[lang="ru"] .hero h1 { font-size: clamp(40px, 5.2vw, 68px); }
 .story-caps { left: max(24px, calc((100% - 1180px) / 2 + 24px)); bottom: 56px; width: min(420px, calc(100% - 48px)); height: 0; }
 .story-cap {
   position: absolute; left: 0; bottom: 0; width: 100%; opacity: 0; pointer-events: none;
-  background: rgba(255, 255, 255, .92); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, .95);
   border: 1px solid rgba(17, 25, 21, .06); border-radius: 20px; padding: 22px 24px; box-shadow: var(--shadow-lg);
 }
 .cap-num { font-size: 12px; color: var(--muted); letter-spacing: .06em; }
@@ -467,7 +467,7 @@ html[lang="ru"] .hero h1 { font-size: clamp(40px, 5.2vw, 68px); }
 .story-end {
   left: max(24px, calc((100% - 1180px) / 2 + 24px)); top: 50%; transform: translateY(-50%);
   width: min(520px, calc(100% - 48px)); opacity: 0; pointer-events: none;
-  background: rgba(245, 244, 238, .9); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+  background: rgba(245, 244, 238, .95);
   border-radius: 24px; padding: 32px; box-shadow: var(--shadow-lg);
 }
 .story-end h2 { font-size: clamp(30px, 3.6vw, 48px); letter-spacing: -0.03em; }
@@ -477,7 +477,7 @@ html[lang="ru"] .hero h1 { font-size: clamp(40px, 5.2vw, 68px); }
 .story-skip {
   right: 24px; bottom: 22px; display: inline-flex; align-items: center; gap: 6px;
   height: 36px; padding: 0 14px; border-radius: 999px; border: 1px solid rgba(17, 25, 21, .14);
-  background: rgba(245, 244, 238, .8); backdrop-filter: blur(8px); font-size: 13px; color: var(--ink-2); cursor: pointer;
+  background: rgba(245, 244, 238, .9); font-size: 13px; color: var(--ink-2); cursor: pointer;
 }
 .story-skip svg { width: 14px; height: 14px; }
 .story-skip:hover { color: var(--ink); border-color: var(--ink); }
@@ -488,7 +488,7 @@ html[lang="ru"] .hero h1 { font-size: clamp(40px, 5.2vw, 68px); }
 .story-hint svg { width: 18px; height: 18px; animation: nudge 1.6s ease-in-out infinite; }
 @keyframes nudge { 50% { transform: translateY(5px); } }
 .story-progress { position: absolute; left: 0; right: 0; bottom: 0; height: 3px; background: rgba(17, 25, 21, .06); z-index: 2; }
-.story-progress i { display: block; height: 100%; width: 0; background: var(--green-2); }
+.story-progress i { display: block; height: 100%; width: 100%; background: var(--green-2); transform: scaleX(0); transform-origin: 0 50%; will-change: transform; }
 
 @media (max-width: 760px), (max-aspect-ratio: 21/20) {
   .story-intro { left: 20px; right: 20px; width: auto; top: 84px; transform: none; padding-top: 0; }
@@ -513,10 +513,22 @@ html[lang="ru"] .hero h1 { font-size: clamp(40px, 5.2vw, 68px); }
 html[lang="ru"] .story-intro h1 { font-size: clamp(36px, 4.6vw, 64px); }
 @media (max-width: 760px), (max-aspect-ratio: 21/20) {
   html[lang="ru"] .story-intro h1 { font-size: clamp(32px, 8.4vw, 50px); }
-  .story-hint { flex-direction: row; gap: 6px; align-items: center; height: 36px; padding: 0 14px; border-radius: 999px; background: rgba(245, 244, 238, .85); backdrop-filter: blur(8px); }
+  .story-hint { flex-direction: row; gap: 6px; align-items: center; height: 36px; padding: 0 14px; border-radius: 999px; background: rgba(245, 244, 238, .92); }
   .story-hint svg { width: 14px; height: 14px; }
 }
 .story-chips { display: flex; flex-wrap: wrap; gap: 8px 18px; margin-top: 22px; font-size: 14px; color: var(--ink-2); }
 .story-chips > span { display: inline-flex; align-items: center; gap: 7px; }
 .story-chips svg { width: 15px; height: 15px; color: var(--green-2); flex: none; }
 @media (max-width: 760px), (max-aspect-ratio: 21/20) { .story-chips { margin-top: 14px; font-size: 13px; gap: 6px 14px; } }
+
+/* Scroll story layers: painted once, moved and tinted by the GPU */
+.story-scene { position: absolute; inset: 0; overflow: hidden; }
+.story-layer { position: absolute; left: 0; top: 0; will-change: transform; pointer-events: none; }
+.story-fx { position: absolute; inset: 0; pointer-events: none; opacity: 0; will-change: opacity; }
+.story-rays { background: no-repeat 0 0 / 100% 100%; }
+.story-warm { background: #ffd89a; }
+.story-flash { background: #fffdf6; }
+.story-vignette { opacity: 1; background: radial-gradient(ellipse at 55% 45%, rgba(18, 26, 16, 0) 45%, rgba(18, 26, 16, .2) 100%); }
+
+/* Story overlays animate on the graphics card (no repaint while scrolling). */
+.story-intro, .story-cap, .story-chip, .story-end, .story-skip, .story-hint { will-change: opacity, transform; }

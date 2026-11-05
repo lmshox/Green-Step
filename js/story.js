@@ -1,8 +1,8 @@
 // Yashil Qadam — hero scroll story (realistic canvas version).
 //
-// The scene is painted procedurally into cached layers once (sky and landscape,
-// ground with grass, the tree in two depth layers, sprites for every piece of
-// rubbish), so each frame only composites a few bitmaps plus some swaying grass.
+// The scene is painted procedurally once into separate canvases (sky and landscape,
+// ground with grass, the tree in two depth layers) that the graphics card moves and
+// tints with CSS. Only the small moving things are drawn per frame, from sprites.
 //
 // Scrolling drives the story: the camera glides down the trunk, rubbish appears,
 // then Fix (pins) → Clean (into the bag) → Verify (check) → Reward (flowers, +120).
@@ -53,7 +53,6 @@
     g.setTransform(q, 0, 0, q, -x0 * q, -y0 * q);
     return { c, g, x0, y0, x1, y1, q };
   }
-  const blit = (L) => ctx.drawImage(L.c, L.x0, L.y0, L.x1 - L.x0, L.y1 - L.y0);
 
   /* ------------------------------------------------------------------ */
   /* World                                                               */
@@ -705,12 +704,31 @@
   /* ------------------------------------------------------------------ */
   /* Build cached layers                                                 */
   /* ------------------------------------------------------------------ */
+  // The landscape, the ground and the tree are painted once, each into its own
+  // <canvas> inside #story-scene. Frames only move them with CSS transforms,
+  // which the graphics card does almost for free. #story-canvas on top holds
+  // just the small moving things (rubbish, pins, bag, flowers, grass, leaves).
+
+  const scene = document.getElementById("story-scene");
+  const fxRays = document.getElementById("story-rays");
+  const fxWarm = document.getElementById("story-warm");
+  const fxFlash = document.getElementById("story-flash");
 
   let S = null;
   let builtQ = 0;
   const TREE = buildTree();
+  const GRASS_TONES = 10;
+
+  function mount(L) {
+    L.c.className = "story-layer";
+    L.c.setAttribute("aria-hidden", "true");
+    scene.appendChild(L.c);
+    return L;
+  }
 
   function build(q) {
+    scene.querySelectorAll(".story-layer").forEach((n) => n.remove());
+
     const qb = Math.max(0.35, q * 0.5); // the background is soft on purpose (depth of field)
     const bg = layer(WX0, WY0, WX1, 1530, qb);
     paintBackground(bg);
@@ -727,6 +745,8 @@
     const front = layer(bx0, by0, bx1, by1, q);
     drawLeaves(front, TREE, (c) => c.z >= 0.74, 303);
     window.__storyTreeMs = Math.round(performance.now() - tb);
+    back.tree = front.tree = true;
+    [bg, ground, back, front].forEach(mount);
 
     const sq = Math.min(2.5, q * 1.4);
     const items = RUBBISH.map(([type, x, y, rot, sc], i) => {
@@ -743,66 +763,130 @@
       return { x, y, h: 24 + R() * 18 + depth * 10, size: 1.35 + depth * 0.45, lean: (R() - 0.5) * 8, spr: sprite(22, 22, sq, (g) => drawFlowerHead(g, type, R)) };
     });
 
-    // Foreground grass that sways (drawn each frame, over the rubbish).
+    // Soft contact shadow, drawn once and stretched under each object.
+    const shadowSpr = sprite(100, 100, 0.6, (g) => {
+      const gr = g.createRadialGradient(0, 0, 0, 0, 0, 50);
+      gr.addColorStop(0, "rgba(18,24,12,.7)"); gr.addColorStop(1, "rgba(18,24,12,0)");
+      g.fillStyle = gr; g.beginPath(); g.arc(0, 0, 50, 0, TAU); g.fill();
+    });
+
+    // The verify check mark, with its blurred shadow baked in.
+    const checkSpr = sprite(270, 270, sq, (g) => {
+      g.save();
+      g.shadowColor = "rgba(10,20,12,.35)"; g.shadowBlur = 24 * sq; g.shadowOffsetY = 8 * sq;
+      g.fillStyle = "#24402d"; g.beginPath(); g.arc(0, 0, 70, 0, TAU); g.fill();
+      g.restore();
+      g.strokeStyle = "rgba(201,216,160,.85)"; g.lineWidth = 5; g.beginPath(); g.arc(0, 0, 88, 0, TAU); g.stroke();
+      g.strokeStyle = "#f6f3ea"; g.lineWidth = 13; g.lineCap = "round"; g.lineJoin = "round";
+      g.beginPath(); g.moveTo(-29, 2); g.lineTo(-8, 23); g.lineTo(31, -19); g.stroke();
+    });
+
+    // Foreground grass that sways (drawn each frame, over the rubbish). Blades share
+    // a few tones so each tone is filled in one go.
     const R = rng(61);
-    const fg = [];
-    for (let i = 0; i < 520; i++) {
+    const tones = Array.from({ length: GRASS_TONES }, () => ({ h: 75 + R() * 30, s: 22 + R() * 16, l: 24 + R() * 20 }));
+    const fg = Array.from({ length: GRASS_TONES }, () => []);
+    for (let i = 0; i < 440; i++) {
       const y = 1530 + Math.pow(R(), 0.6) * (WY1 - 1530);
       const x = WX0 + R() * (WX1 - WX0);
       const depth = clamp((y - 1480) / 600);
-      fg.push({ x, y, len: 12 + depth * 30 + R() * 12, w: 1.4 + depth * 2.2, lean: (R() - 0.5) * 0.7, ph: R() * TAU,
-        h: 75 + R() * 30, s: 22 + R() * 16, l: 24 + R() * 20 });
+      fg[(R() * GRASS_TONES) | 0].push({ x, y, len: 12 + depth * 30 + R() * 12, w: 1.4 + depth * 2.2, lean: (R() - 0.5) * 0.7, ph: R() * TAU });
     }
-    fg.sort((a, b) => a.y - b.y);
 
-    S = { bg, ground, back, front, items, bagSpr, pinSpr, flowers, fg };
+    S = { layers: [bg, ground, back, front], bg, ground, back, front, items, bagSpr, pinSpr, flowers, shadowSpr, checkSpr, tones, fg, grassDq: -1, grassCols: [] };
     builtQ = q;
+    sizeLayers();
+  }
+
+  function sizeLayers() {
+    if (!S) return;
+    for (const L of S.layers) {
+      L.c.style.width = `${((L.x1 - L.x0) * scale).toFixed(2)}px`;
+      L.c.style.height = `${((L.y1 - L.y0) * scale).toFixed(2)}px`;
+      if (L.tree) L.c.style.transformOrigin = `${((TX - L.x0) * scale).toFixed(2)}px ${((BASE_Y - L.y0) * scale).toFixed(2)}px`;
+    }
   }
 
   /* ------------------------------------------------------------------ */
   /* Layout and camera                                                   */
   /* ------------------------------------------------------------------ */
 
-  let W = 0, H = 0, dpr = 1, scale = 1, wide = true, startY = 0;
+  let W = 0, H = 0, dpr = 1, scale = 1, wide = true, startY = 0, total = 1, secTop = 0;
   const view = { ox: 0, oy: 0, s: 1 }; // world -> CSS px
 
-  function layout() {
-    W = sticky.clientWidth; H = sticky.clientHeight;
-    if (!W || !H) return;
-    dpr = Math.min(2, window.devicePixelRatio || 1);
-    canvas.width = Math.round(W * dpr); canvas.height = Math.round(H * dpr);
+  function layout(force) {
+    const w = sticky.clientWidth, h = sticky.clientHeight;
+    if (!w || !h) return;
+    const d = Math.min(1.5, window.devicePixelRatio || 1);
+    // Phones fire resize when the address bar slides; the scene's size doesn't change, so do nothing.
+    if (!force && S && w === W && h === H && d === dpr) return;
+    if (w !== W || h !== H || d !== dpr) {
+      W = w; H = h; dpr = d;
+      canvas.width = Math.round(W * dpr); canvas.height = Math.round(H * dpr);
+      paintRays();
+    }
     scale = Math.max(W / 1600, H / 1000);
     wide = W / H > 1.05 && W > 760;
     startY = wide ? 80 : clamp(((intro.offsetTop + intro.offsetHeight) / H) * 1000 + 20, 0, 760);
-    const q = clamp(Math.round(scale * dpr * 4) / 4, 0.5, 1.5);
-    if (!S || Math.abs(q - builtQ) > 0.2) build(q);
-    frame(performance.now());
+    total = section.offsetHeight - sticky.offsetHeight;
+    secTop = section.getBoundingClientRect().top + window.scrollY;
+    const q = clamp(Math.round(Math.min(scale * (window.devicePixelRatio || 1), 1.4) * 4) / 4, 0.5, 1.4);
+    if (!S || Math.abs(q - builtQ) > 0.3) build(q);
+    else sizeLayers();
+    frame(performance.now(), true);
+  }
+
+  // Sun rays: painted once per size into a soft, low-resolution image (a static image
+  // is cheaper to show than a live canvas, and no blending modes are needed).
+  function paintRays() {
+    const c = document.createElement("canvas");
+    const cw = (c.width = Math.max(1, Math.round(W / 2)));
+    const ch = (c.height = Math.max(1, Math.round(H / 2)));
+    const g = c.getContext("2d");
+    for (let i = 0; i < 4; i++) {
+      const x0 = cw * (-0.15 + i * 0.16), w0 = cw * (0.05 + i * 0.015);
+      const gr = g.createLinearGradient(x0, 0, x0 + cw * 0.5, ch);
+      gr.addColorStop(0, "rgba(255,246,222,.17)");
+      gr.addColorStop(1, "rgba(255,246,222,0)");
+      g.fillStyle = gr;
+      g.beginPath(); g.moveTo(x0, -10); g.lineTo(x0 + w0, -10); g.lineTo(x0 + w0 + cw * 0.55, ch); g.lineTo(x0 + cw * 0.5, ch); g.closePath(); g.fill();
+    }
+    fxRays.style.backgroundImage = `url(${c.toDataURL()})`;
   }
 
   function progress() {
-    const r = section.getBoundingClientRect();
-    const total = section.offsetHeight - sticky.offsetHeight;
-    return total > 0 ? clamp(-r.top / total) : 0;
+    // From the scroll position alone, so reading it never makes the browser recompute the layout.
+    return total > 0 ? clamp((window.scrollY - secTop) / total) : 0;
   }
 
   /* ------------------------------------------------------------------ */
   /* Frame                                                               */
   /* ------------------------------------------------------------------ */
 
-  let born = 0;
+  let born = 0, lastP = -1, lastDraw = 0, fxUsed = true;
   const leaves = Array.from({ length: 9 }, (_, i) => ({ seed: i * 1.37, x: TX - 380 + ((i * 97) % 760), dur: 9 + (i % 4) * 1.6 }));
 
-  function show(el, o, interactive) {
-    el.style.opacity = o.toFixed(3);
-    el.style.visibility = o < 0.01 ? "hidden" : "visible";
-    if (interactive) el.style.pointerEvents = o > 0.5 ? "auto" : "none";
+  // Write a style only when it changes (writes are what make the browser work).
+  function css(el, prop, v) {
+    const c = el.__yq || (el.__yq = {});
+    if (c[prop] !== v) { c[prop] = v; el.style[prop] = v; }
   }
+  function show(el, o, interactive) {
+    css(el, "opacity", o.toFixed(2));
+    css(el, "visibility", o < 0.01 ? "hidden" : "visible");
+    if (interactive) css(el, "pointerEvents", o > 0.5 ? "auto" : "none");
+  }
+  const px = (v) => v.toFixed(1);
 
-  function frame(now) {
+  function frame(now, force) {
     if (!S) return;
     if (!born) born = now;
     const t = reduce ? 0 : (now - born) / 1000;
     const p = reduce ? 0 : progress();
+    // When the page isn't scrolling, the gentle idle motion runs at 30 fps.
+    if (!force && t > 2 && p === lastP && now - lastDraw < 30) return;
+    lastP = p; lastDraw = now;
+
     const grow = reduce ? 1 : easeOut(clamp(t / 1.8));
     const fadeIn = reduce ? 1 : clamp(t / 0.6);
 
@@ -810,43 +894,59 @@
     const cam = smooth(seg(p, 0.04, 0.4));
     const camY = lerp(startY, -1000, cam);
     const vbx = wide ? lerp(-480, -260, cam) : 0;
-    view.s = scale;
-    view.ox = (W - 1600 * scale) / 2 - vbx * scale;
-    view.oy = (H - 1000 * scale) / 2 + camY * scale;
-    const k = view.s * dpr;
+    const s = (view.s = scale);
+    view.ox = (W - 1600 * s) / 2 - vbx * s;
+    view.oy = (H - 1000 * s) / 2 + camY * s;
 
     const dirty = seg(p, 0.28, 0.42) * (1 - seg(p, 0.78, 0.9));
     const bloom = seg(p, 0.8, 0.95);
 
-    ctx.setTransform(1, 0, 0, 1, 0, 0);
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.setTransform(k, 0, 0, k, view.ox * dpr, view.oy * dpr);
-
-    ctx.globalAlpha = fadeIn;
-    blit(S.bg);
-    blit(S.ground);
-    ctx.globalAlpha = 1;
+    /* ---------- painted layers: moved by the graphics card ---------- */
+    const at = (L) => `translate3d(${px(view.ox + L.x0 * s)}px,${px(view.oy + L.y0 * s)}px,0)`;
+    css(S.bg.c, "transform", at(S.bg));
+    css(S.ground.c, "transform", at(S.ground));
+    css(S.bg.c, "opacity", fadeIn.toFixed(2));
+    css(S.ground.c, "opacity", fadeIn.toFixed(2));
 
     // Tree: grows in on load, then sways gently from the base.
     const sway = reduce ? 0 : 0.0032 * Math.sin(t * 0.55) + 0.0012 * Math.sin(t * 1.43 + 1);
-    ctx.save();
-    ctx.globalAlpha = grow;
-    ctx.translate(TX, BASE_Y);
-    ctx.rotate(sway);
-    ctx.scale(0.9 + 0.1 * grow, 0.86 + 0.14 * grow);
-    ctx.translate(-TX, -BASE_Y);
-    blit(S.back);
-    if (!reduce) ctx.translate(2.2 * Math.sin(t * 1.05 + 0.4), 1.1 * Math.sin(t * 1.31));
-    blit(S.front);
-    ctx.restore();
+    const treeT = ` rotate(${sway.toFixed(5)}rad) scale(${(0.9 + 0.1 * grow).toFixed(4)},${(0.86 + 0.14 * grow).toFixed(4)})`;
+    css(S.back.c, "transform", at(S.back) + treeT);
+    const fdx = reduce ? 0 : 2.2 * Math.sin(t * 1.05 + 0.4) * s, fdy = reduce ? 0 : 1.1 * Math.sin(t * 1.31) * s;
+    css(S.front.c, "transform", at(S.front) + treeT + ` translate(${fdx.toFixed(2)}px,${fdy.toFixed(2)}px)`);
+    css(S.back.c, "opacity", grow.toFixed(2));
+    css(S.front.c, "opacity", grow.toFixed(2));
 
-    // Drifting leaves.
-    if (!reduce) {
+    // Pollution: the scene loses colour and warmth (the rubbish on top keeps its colour).
+    const dq = Math.round(dirty * 50) / 50;
+    css(scene, "filter", dq > 0 ? `saturate(${(1 - 0.62 * dq).toFixed(2)}) sepia(${(0.24 * dq).toFixed(2)}) brightness(${(1 - 0.08 * dq).toFixed(2)})` : "none");
+
+    // Screen light: sun rays, warm glow at the end, the verify flash.
+    show(fxRays, Math.min(1, ((1 - seg(p, 0.05, 0.3)) * 0.85 + bloom) * fadeIn));
+    show(fxWarm, bloom * 0.13);
+    show(fxFlash, Math.max(0, seg(p, 0.705, 0.72) - seg(p, 0.72, 0.75)) * 0.6);
+
+    /* ---------- moving details: drawn on the canvas ---------- */
+    const k = s * dpr;
+    const top = -view.oy / s, bottom = (H - view.oy) / s;
+    const left = -view.ox / s, right = (W - view.ox) / s;
+    // Leave the canvas alone when it was empty and stays empty.
+    const busy = (!reduce && top < 1520) || bottom > 1500 || (bottom > 1240 && p > 0.29);
+    if (busy || fxUsed) {
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+    fxUsed = busy;
+    ctx.setTransform(k, 0, 0, k, view.ox * dpr, view.oy * dpr);
+
+    // Drifting leaves (only while the canopy is in view).
+    if (!reduce && top < 1520) {
       for (const lf of leaves) {
         const u = ((t + lf.seed * 7) % lf.dur) / lf.dur;
         const a = clamp(u * 8) * clamp((1 - u) * 6) * 0.9;
         if (a <= 0) continue;
         const x = lf.x + Math.sin(u * 6 + lf.seed) * 40 - u * 60, y = 640 + u * 880;
+        if (y < top - 10 || y > bottom + 10) continue;
         ctx.save(); ctx.translate(x, y); ctx.rotate(u * 9 + lf.seed); ctx.scale(1, Math.cos(u * 14 + lf.seed));
         ctx.globalAlpha = a;
         ctx.fillStyle = lf.seed % 2 > 1 ? "#8a8f45" : "#5d7b45";
@@ -855,170 +955,138 @@
       }
     }
 
-    // Pollution: the scene loses colour and warmth (rubbish is drawn after, so it stands out).
-    if (dirty > 0.001) {
-      ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0);
-      ctx.globalCompositeOperation = "saturation";
-      ctx.globalAlpha = dirty * 0.62;
-      ctx.fillStyle = "#808080"; ctx.fillRect(0, 0, canvas.width, canvas.height);
-      ctx.globalCompositeOperation = "multiply";
-      ctx.globalAlpha = dirty * 0.4;
-      ctx.fillStyle = "#cfc6ae"; ctx.fillRect(0, 0, canvas.width, canvas.height);
-      ctx.restore();
-    }
-
-    // Reward: wildflowers grow, stem first.
-    S.flowers.forEach((fw, i) => {
-      const g = easeOut(seg(p, 0.8 + i * 0.0028, 0.87 + i * 0.0028));
-      if (g <= 0) return;
-      const sw = reduce ? 0 : Math.sin(t * 1.6 + i) * 1.5;
-      const hx = fw.x + fw.lean * g + sw * g, hy = fw.y - fw.h * g;
-      ctx.strokeStyle = "#4b6b3a"; ctx.lineWidth = 1.4 + fw.size * 0.5; ctx.lineCap = "round";
-      ctx.beginPath(); ctx.moveTo(fw.x, fw.y); ctx.quadraticCurveTo(fw.x + fw.lean * 0.3, fw.y - fw.h * 0.5 * g, hx, hy); ctx.stroke();
-      ctx.fillStyle = "#56783f"; ctx.beginPath(); ctx.ellipse(fw.x + 4 * g, fw.y - fw.h * 0.35 * g, 5 * g, 2 * g, -0.5, 0, TAU); ctx.fill();
-      const hs = clamp((g - 0.4) / 0.6);
-      if (hs > 0) {
-        ctx.save(); ctx.translate(hx, hy); ctx.scale(hs * fw.size, hs * fw.size * 0.85);
-        ctx.drawImage(fw.spr.c, -11, -11, 22, 22); ctx.restore();
+    if (busy && bottom > 1240) {
+      // Reward: wildflowers grow, stem first.
+      if (p > 0.8) {
+        ctx.lineCap = "round";
+        S.flowers.forEach((fw, i) => {
+          const g = easeOut(seg(p, 0.8 + i * 0.0028, 0.87 + i * 0.0028));
+          if (g <= 0 || fw.y - fw.h > bottom || fw.y < top) return;
+          const sw = reduce ? 0 : Math.sin(t * 1.6 + i) * 1.5;
+          const hx = fw.x + fw.lean * g + sw * g, hy = fw.y - fw.h * g;
+          ctx.strokeStyle = "#4b6b3a"; ctx.lineWidth = 1.4 + fw.size * 0.5;
+          ctx.beginPath(); ctx.moveTo(fw.x, fw.y); ctx.quadraticCurveTo(fw.x + fw.lean * 0.3, fw.y - fw.h * 0.5 * g, hx, hy); ctx.stroke();
+          ctx.fillStyle = "#56783f"; ctx.beginPath(); ctx.ellipse(fw.x + 4 * g, fw.y - fw.h * 0.35 * g, 5 * g, 2 * g, -0.5, 0, TAU); ctx.fill();
+          const hs = clamp((g - 0.4) / 0.6);
+          if (hs > 0) {
+            const w = 22 * hs * fw.size, h = 22 * hs * fw.size * 0.85;
+            ctx.drawImage(fw.spr.c, hx - w / 2, hy - h / 2, w, h);
+          }
+        });
       }
-    });
 
-    // Rubbish: settles in, then is picked up into the bag.
-    let collected = 0;
-    S.items.forEach((it, i) => {
-      const a = seg(p, 0.3 + i * 0.007, 0.35 + i * 0.007);
-      if (a <= 0) return;
-      const c = smooth(seg(p, 0.56 + i * 0.0065, 0.6 + i * 0.0065));
-      if (c >= 1) { collected++; return; }
-      const ap = easeOut(a);
-      const x = lerp(it.x, BIN.x, c);
-      const y = lerp(it.y - 14 * (1 - ap), BIN.y - 30, c) - Math.sin(Math.PI * c) * 90;
-      const sc = it.sc * (0.92 + 0.08 * ap) * (1 - 0.55 * c);
-      const alpha = ap * (1 - seg(c, 0.8, 1));
-      if (c < 0.3) { // contact shadow
-        const r = it.w * 0.5 * it.sc;
-        ctx.save(); ctx.globalAlpha = alpha * (1 - c / 0.3) * 0.55;
-        ctx.translate(it.x + 5, it.y + 7); ctx.scale(1, 0.4);
-        const gr = ctx.createRadialGradient(0, 0, 0, 0, 0, r);
-        gr.addColorStop(0, "rgba(18,24,12,.7)"); gr.addColorStop(1, "rgba(18,24,12,0)");
-        ctx.fillStyle = gr; ctx.beginPath(); ctx.arc(0, 0, r, 0, TAU); ctx.fill();
+      // Rubbish: settles in, then is picked up into the bag.
+      let collected = 0;
+      S.items.forEach((it, i) => {
+        const a = seg(p, 0.3 + i * 0.007, 0.35 + i * 0.007);
+        if (a <= 0) return;
+        const c = smooth(seg(p, 0.56 + i * 0.0065, 0.6 + i * 0.0065));
+        if (c >= 1) { collected++; return; }
+        const ap = easeOut(a);
+        const x = lerp(it.x, BIN.x, c);
+        const y = lerp(it.y - 14 * (1 - ap), BIN.y - 30, c) - Math.sin(Math.PI * c) * 90;
+        if (y < top - 60 || y > bottom + 60) return;
+        const sc = it.sc * (0.92 + 0.08 * ap) * (1 - 0.55 * c);
+        const alpha = ap * (1 - seg(c, 0.8, 1));
+        if (c < 0.3) { // contact shadow
+          const r = it.w * 0.5 * it.sc;
+          ctx.globalAlpha = alpha * (1 - c / 0.3) * 0.55;
+          ctx.drawImage(S.shadowSpr.c, it.x + 5 - r, it.y + 7 - r * 0.4, r * 2, r * 0.8);
+        }
+        ctx.globalAlpha = alpha;
+        ctx.save();
+        ctx.translate(x, y); ctx.rotate(it.rot + c * 0.7); ctx.scale(sc, sc);
+        const L = it.spr;
+        ctx.drawImage(L.c, L.x0, L.y0, L.x1 - L.x0, L.y1 - L.y0);
         ctx.restore();
-      }
-      ctx.save();
-      ctx.globalAlpha = alpha;
-      ctx.translate(x, y); ctx.rotate(it.rot + c * 0.7); ctx.scale(sc, sc);
-      const L = it.spr;
-      ctx.drawImage(L.c, L.x0, L.y0, L.x1 - L.x0, L.y1 - L.y0);
-      ctx.restore();
-    });
-
-    // Fix: pins drop onto the rubbish.
-    const pinsGone = seg(p, 0.53, 0.56);
-    [[724, 1690], [962, 1680], [602, 1752]].forEach(([x, y], j) => {
-      const d = seg(p, 0.42 + j * 0.025, 0.46 + j * 0.025);
-      if (d <= 0 || pinsGone >= 1) return;
-      const e = easeOut(d);
-      ctx.save(); ctx.globalAlpha = (1 - pinsGone) * clamp(d * 3);
-      ctx.fillStyle = "rgba(20,24,14,.3)"; ctx.beginPath(); ctx.ellipse(x + 3, y + 2, 12 * e, 4 * e, 0, 0, TAU); ctx.fill();
-      ctx.translate(x, y - 40 - 220 * (1 - e));
-      const L = S.pinSpr; ctx.drawImage(L.c, L.x0, L.y0, L.x1 - L.x0, L.y1 - L.y0);
-      ctx.restore();
-    });
-
-    // Clean: the bag appears, fills, and is carried away.
-    const bagIn = easeOut(seg(p, 0.52, 0.56));
-    const bagOut = smooth(seg(p, 0.8, 0.86));
-    if (bagIn > 0 && bagOut < 1) {
-      const fill = 0.82 + 0.3 * (collected / S.items.length);
-      const bx = BIN.x + bagOut * 520;
-      ctx.save(); ctx.globalAlpha = bagIn * (1 - bagOut);
-      ctx.save(); ctx.translate(bx + 8, BIN.y + 50); ctx.scale(1, 0.25);
-      const gr = ctx.createRadialGradient(0, 0, 0, 0, 0, 70);
-      gr.addColorStop(0, "rgba(14,18,10,.5)"); gr.addColorStop(1, "rgba(14,18,10,0)");
-      ctx.fillStyle = gr; ctx.beginPath(); ctx.arc(0, 0, 70, 0, TAU); ctx.fill(); ctx.restore();
-      ctx.translate(bx, BIN.y); ctx.scale(fill * bagIn, fill * (0.9 + 0.1 * bagIn));
-      const L = S.bagSpr; ctx.drawImage(L.c, L.x0, L.y0, L.x1 - L.x0, L.y1 - L.y0);
-      ctx.restore();
-    }
-
-    // Foreground grass swaying in the wind (desaturated while polluted).
-    const top = -view.oy / view.s - 20, bottom = (H - view.oy) / view.s + 40;
-    if (bottom > 1500) {
-      for (const b of S.fg) {
-        if (b.y < top || b.y - b.len > bottom) continue;
-        const bend = (b.lean + (reduce ? 0 : 0.16 * Math.sin(t * 1.7 + b.x * 0.015 + b.ph))) * b.len;
-        ctx.fillStyle = hsl(b.h, b.s * (1 - dirty * 0.7), b.l + dirty * 6, 0.95);
-        ctx.beginPath();
-        ctx.moveTo(b.x - b.w / 2, b.y);
-        ctx.quadraticCurveTo(b.x + bend * 0.35, b.y - b.len * 0.6, b.x + bend, b.y - b.len);
-        ctx.quadraticCurveTo(b.x + bend * 0.35 + b.w * 0.4, b.y - b.len * 0.6, b.x + b.w / 2, b.y);
-        ctx.fill();
-      }
-    }
-
-    // Verify: a check mark (an interface element, so it stays crisp).
-    const ck = easeOut(seg(p, 0.72, 0.76));
-    const ckOut = seg(p, 0.8, 0.83);
-    if (ck > 0 && ckOut < 1) {
-      const s = ck * (1 - 0.3 * ckOut);
-      ctx.save(); ctx.globalAlpha = 1 - ckOut;
-      ctx.translate(TX, 1370); ctx.scale(s, s);
-      ctx.shadowColor = "rgba(10,20,12,.35)"; ctx.shadowBlur = 24; ctx.shadowOffsetY = 8;
-      ctx.fillStyle = "#24402d"; ctx.beginPath(); ctx.arc(0, 0, 70, 0, TAU); ctx.fill();
-      ctx.shadowColor = "transparent";
-      ctx.strokeStyle = "rgba(201,216,160,.85)"; ctx.lineWidth = 5; ctx.beginPath(); ctx.arc(0, 0, 88, 0, TAU); ctx.stroke();
-      ctx.strokeStyle = "#f6f3ea"; ctx.lineWidth = 13; ctx.lineCap = "round"; ctx.lineJoin = "round";
-      ctx.beginPath(); ctx.moveTo(-29, 2); ctx.lineTo(-8, 23); ctx.lineTo(31, -19); ctx.stroke();
-      ctx.restore();
-    }
-
-    // Screen-space light: sun rays, warm glow at the end, the verify flash, a soft vignette.
-    ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0);
-    const cw = canvas.width, ch = canvas.height;
-    const rays = ((1 - seg(p, 0.05, 0.3)) * 0.85 + bloom) * fadeIn;
-    if (rays > 0.01) {
-      ctx.globalCompositeOperation = "screen";
-      for (let i = 0; i < 4; i++) {
-        const shimmer = reduce ? 1 : 0.75 + 0.25 * Math.sin(t * 0.4 + i * 1.7);
-        const x0 = cw * (-0.15 + i * 0.16), w0 = cw * (0.05 + i * 0.015);
-        const gr = ctx.createLinearGradient(x0, 0, x0 + cw * 0.5, ch);
-        gr.addColorStop(0, `rgba(255,240,205,${(0.13 * rays * shimmer).toFixed(3)})`);
-        gr.addColorStop(1, "rgba(255,240,205,0)");
-        ctx.fillStyle = gr;
-        ctx.beginPath(); ctx.moveTo(x0, -10); ctx.lineTo(x0 + w0, -10); ctx.lineTo(x0 + w0 + cw * 0.55, ch); ctx.lineTo(x0 + cw * 0.5, ch); ctx.closePath(); ctx.fill();
-      }
-    }
-    if (bloom > 0.01) {
-      ctx.globalCompositeOperation = "soft-light";
-      ctx.globalAlpha = bloom * 0.35;
-      ctx.fillStyle = "#ffd89a"; ctx.fillRect(0, 0, cw, ch);
+      });
       ctx.globalAlpha = 1;
+
+      // Fix: pins drop onto the rubbish.
+      const pinsGone = seg(p, 0.53, 0.56);
+      if (pinsGone < 1) {
+        [[724, 1690], [962, 1680], [602, 1752]].forEach(([x, y], j) => {
+          const d = seg(p, 0.42 + j * 0.025, 0.46 + j * 0.025);
+          if (d <= 0) return;
+          const e = easeOut(d);
+          ctx.globalAlpha = (1 - pinsGone) * clamp(d * 3);
+          ctx.fillStyle = "rgba(20,24,14,.3)"; ctx.beginPath(); ctx.ellipse(x + 3, y + 2, 12 * e, 4 * e, 0, 0, TAU); ctx.fill();
+          const L = S.pinSpr, py = y - 40 - 220 * (1 - e);
+          ctx.drawImage(L.c, x + L.x0, py + L.y0, L.x1 - L.x0, L.y1 - L.y0);
+        });
+        ctx.globalAlpha = 1;
+      }
+
+      // Clean: the bag appears, fills, and is carried away.
+      const bagIn = easeOut(seg(p, 0.52, 0.56));
+      const bagOut = smooth(seg(p, 0.8, 0.86));
+      if (bagIn > 0 && bagOut < 1) {
+        const fill = 0.82 + 0.3 * (collected / S.items.length);
+        const bx = BIN.x + bagOut * 520;
+        const al = bagIn * (1 - bagOut);
+        ctx.globalAlpha = al * 0.72;
+        ctx.drawImage(S.shadowSpr.c, bx + 8 - 70, BIN.y + 50 - 17.5, 140, 35);
+        ctx.globalAlpha = al;
+        const L = S.bagSpr, sx = fill * bagIn, sy = fill * (0.9 + 0.1 * bagIn);
+        ctx.drawImage(L.c, bx + L.x0 * sx, BIN.y + L.y0 * sy, (L.x1 - L.x0) * sx, (L.y1 - L.y0) * sy);
+        ctx.globalAlpha = 1;
+      }
+
+      // Foreground grass swaying in the wind (desaturated while polluted).
+      if (bottom > 1500) {
+        const gq = Math.round(dirty * 10);
+        if (gq !== S.grassDq) {
+          const d = gq / 10;
+          S.grassCols = S.tones.map((c) => hsl(c.h, c.s * (1 - d * 0.7), c.l + d * 6, 0.95));
+          S.grassDq = gq;
+        }
+        const wind = reduce ? 0 : 0.16, tw = t * 1.7;
+        for (let n = 0; n < GRASS_TONES; n++) {
+          ctx.beginPath();
+          for (const b of S.fg[n]) {
+            if (b.y < top || b.y - b.len > bottom || b.x < left - 40 || b.x > right + 40) continue;
+            const bend = (b.lean + wind * Math.sin(tw + b.x * 0.015 + b.ph)) * b.len;
+            ctx.moveTo(b.x - b.w / 2, b.y);
+            ctx.quadraticCurveTo(b.x + bend * 0.35, b.y - b.len * 0.6, b.x + bend, b.y - b.len);
+            ctx.quadraticCurveTo(b.x + bend * 0.35 + b.w * 0.4, b.y - b.len * 0.6, b.x + b.w / 2, b.y);
+            ctx.closePath();
+          }
+          ctx.fillStyle = S.grassCols[n];
+          ctx.fill();
+        }
+      }
+
+      // Verify: a check mark (an interface element, so it stays crisp).
+      const ck = easeOut(seg(p, 0.72, 0.76));
+      const ckOut = seg(p, 0.8, 0.83);
+      if (ck > 0 && ckOut < 1) {
+        const cs = ck * (1 - 0.3 * ckOut), L = S.checkSpr;
+        ctx.globalAlpha = 1 - ckOut;
+        ctx.drawImage(L.c, TX + L.x0 * cs, 1370 + L.y0 * cs, (L.x1 - L.x0) * cs, (L.y1 - L.y0) * cs);
+        ctx.globalAlpha = 1;
+      }
     }
-    ctx.globalCompositeOperation = "source-over";
-    const fl = Math.max(0, seg(p, 0.705, 0.72) - seg(p, 0.72, 0.75));
-    if (fl > 0) { ctx.globalAlpha = fl * 0.6; ctx.fillStyle = "#fffdf6"; ctx.fillRect(0, 0, cw, ch); ctx.globalAlpha = 1; }
-    const vg = ctx.createRadialGradient(cw * 0.55, ch * 0.45, Math.min(cw, ch) * 0.35, cw * 0.55, ch * 0.45, Math.max(cw, ch) * 0.8);
-    vg.addColorStop(0, "rgba(18,26,16,0)"); vg.addColorStop(1, "rgba(18,26,16,.2)");
-    ctx.fillStyle = vg; ctx.fillRect(0, 0, cw, ch);
-    ctx.restore();
 
     /* ---------- HTML overlays ---------- */
-    show(intro, 1 - seg(p, 0.02, 0.09), true);
-    intro.style.marginTop = `${(-24 * seg(p, 0.02, 0.09)).toFixed(1)}px`;
+    const out = seg(p, 0.02, 0.09);
+    show(intro, 1 - out, true);
+    css(intro, "translate", `0 ${px(-24 * out)}px`);
     show(hint, 1 - seg(p, 0, 0.03));
     show(skip, 1 - seg(p, 0.88, 0.92), true);
-    bar.style.width = `${(p * 100).toFixed(2)}%`;
+    css(bar, "transform", `scaleX(${p.toFixed(4)})`);
 
     const cIn = seg(p, 0.83, 0.87), cOut = seg(p, 0.92, 0.95);
-    const sx = view.ox + TX * view.s, sy = view.oy + 1370 * view.s - 60 * seg(p, 0.83, 0.95);
-    chip.style.transform = `translate(${sx.toFixed(1)}px, ${sy.toFixed(1)}px) translate(-50%, -50%) scale(${(0.85 + 0.15 * easeOut(cIn)).toFixed(3)})`;
     show(chip, cIn * (1 - cOut));
+    if (cIn > 0 && cOut < 1) {
+      const sx = view.ox + TX * s, sy = view.oy + 1370 * s - 60 * seg(p, 0.83, 0.95);
+      css(chip, "transform", `translate(${px(sx)}px, ${px(sy)}px) translate(-50%, -50%) scale(${(0.85 + 0.15 * easeOut(cIn)).toFixed(3)})`);
+    }
 
     const RANGES = [[0.4, 0.53], [0.53, 0.7], [0.7, 0.8], [0.8, 0.93]];
     caps.forEach((cap, i) => {
       const [a, b] = RANGES[i];
       show(cap, seg(p, a, a + 0.025) * (1 - seg(p, b - 0.02, b)));
-      cap.style.transform = `translateY(${(12 * (1 - seg(p, a, a + 0.025))).toFixed(1)}px)`;
+      css(cap, "transform", `translateY(${px(12 * (1 - seg(p, a, a + 0.025)))}px)`);
     });
     show(endBox, seg(p, 0.93, 0.97), true);
   }
@@ -1042,8 +1110,8 @@
   document.addEventListener("visibilitychange", kick);
   window.addEventListener("scroll", kick, { passive: true });
   window.addEventListener("resize", () => { layout(); kick(); });
-  document.addEventListener("langchange", () => requestAnimationFrame(() => { layout(); kick(); }));
-  if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { layout(); kick(); });
+  document.addEventListener("langchange", () => requestAnimationFrame(() => { layout(true); kick(); }));
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { layout(true); kick(); });
 
   skip.addEventListener("click", () => {
     const next = document.getElementById("how");
