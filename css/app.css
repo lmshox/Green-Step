@@ -452,3 +452,18 @@
 .spot-who { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--amber); }
 .spot-who.done { color: var(--green-2); }
 .spot-who svg { width: 14px; height: 14px; flex: none; }
+
+/* ---------- Colour accents ---------- */
+
+.app-main { background: linear-gradient(180deg, var(--lime-soft) 0, var(--paper) 340px); }
+.app-tabs { background: rgba(33, 61, 44, .08); }
+.app-tabs a.active { background: var(--green); color: #fff; box-shadow: none; }
+.seg button.active { background: var(--green); color: #fff; }
+.seg button.active .count { color: var(--lime); }
+.spot-foot .reward { background: var(--lime); color: var(--ink); padding: 3px 8px; border-radius: 6px; }
+.reward-item { background: var(--lime-soft); border-color: #cbd5a6; }
+.cert-stats div { background: var(--sand); border-color: rgba(122, 106, 69, .18); }
+.empty .e-icon, .drop .d-icon { background: var(--green); border-color: var(--green); }
+.empty .e-icon svg, .drop .d-icon svg { color: var(--lime); }
+/* Invisible bridge so the mouse can move from the picture to the menu. */
+.account-menu::before { content: ""; position: absolute; left: 0; right: 0; top: -12px; height: 12px; }

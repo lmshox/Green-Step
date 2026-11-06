@@ -532,3 +532,188 @@ html[lang="ru"] .story-intro h1 { font-size: clamp(36px, 4.6vw, 64px); }
 
 /* Story overlays animate on the graphics card (no repaint while scrolling). */
 .story-intro, .story-cap, .story-chip, .story-end, .story-skip, .story-hint { will-change: opacity, transform; }
+
+/* ==========================================================================
+   Colour bands: alternating green / lime / sand sections instead of all-white
+   ========================================================================== */
+
+:root {
+  --sand: #e9dfc6;
+  --lime-soft: #e0e8c1;
+  --forest: #1a3123;
+  --slate: #35586b;
+  --slate-soft: #dbe6ea;
+}
+
+.band-green { background: var(--green); color: #eef1e6; }
+.band-lime { background: var(--lime-soft); padding: 96px 0; }
+.band-sand { background: var(--sand); }
+@media (max-width: 860px) { .band-lime { padding: 64px 0; } }
+
+/* How it works on deep green */
+#how .eyebrow { color: var(--lime); }
+#how .section-head h2 .serif { color: var(--lime); }
+#how .section-head p { color: #c9d3c3; }
+#how .steps { border-top-color: rgba(198, 212, 154, .55); gap: 16px; border-top: 0; }
+#how .step, #how .step + .step {
+  padding: 28px; border: 1px solid rgba(255, 255, 255, .1); border-left: 1px solid rgba(255, 255, 255, .1);
+  border-radius: 20px; background: rgba(255, 255, 255, .05); transition: background .2s, transform .2s;
+}
+#how .step:hover { background: rgba(255, 255, 255, .09); transform: translateY(-3px); }
+#how .step-num { color: var(--lime); }
+#how .step-icon { background: var(--lime); border-color: var(--lime); }
+#how .step-icon svg { color: var(--ink); }
+#how .step p { color: #c9d3c3; }
+#how .step .tag { background: var(--lime); color: var(--ink); }
+#how .step .tag.opt { background: rgba(255, 255, 255, .12); color: #eef1e6; }
+@media (max-width: 860px) { #how .step + .step { border-top: 1px solid rgba(255, 255, 255, .1); } }
+
+/* Fair play on warm sand, each rule with its own colour */
+#fair-play .eyebrow { color: #7a6a45; }
+#fair-play .rule { background: #f7f2e6; border-color: rgba(122, 106, 69, .18); transition: transform .2s, box-shadow .2s; }
+#fair-play .rule:hover { transform: translateY(-3px); box-shadow: var(--shadow); }
+#fair-play .rule:nth-child(1) .rule-icon { background: var(--green); color: var(--lime); }
+#fair-play .rule:nth-child(2) .rule-icon { background: var(--slate-soft); color: var(--slate); }
+#fair-play .rule:nth-child(3) .rule-icon { background: var(--amber-soft); color: var(--amber); }
+#fair-play .rule:nth-child(4) .rule-icon { background: var(--lime); color: var(--ink); }
+#fair-play .rule:nth-child(5) .rule-icon { background: var(--rust-soft); color: var(--rust); }
+#fair-play .rule:nth-child(6) .rule-icon { background: var(--ink); color: var(--lime); }
+#fair-play .penalty { background: var(--rust); color: #fff; }
+
+/* Rewards: a dark "earn" panel next to a lime "spend" panel */
+#rewards .panel:first-child { background: var(--ink); border-color: var(--ink); color: #eef1e6; }
+#rewards .panel:first-child .panel-sub, #rewards .panel:first-child .hint { color: #9fa99f; }
+#rewards .panel:first-child .earn-table td { border-top-color: rgba(255, 255, 255, .1); }
+#rewards .panel:first-child .pts { color: var(--lime); font-size: 18px; }
+#rewards .panel:last-child { background: var(--lime-soft); border-color: #cbd5a6; }
+#rewards .panel:last-child .panel-sub { color: #5c6650; }
+#rewards .spend-item { background: rgba(255, 255, 255, .55); border-color: rgba(33, 61, 44, .1); }
+#rewards .spend-item .si-icon { background: var(--green); border-color: var(--green); }
+#rewards .spend-item .si-icon svg { color: var(--lime); }
+#rewards .rate { border-top-color: rgba(33, 61, 44, .25); }
+
+/* Principles as coloured tiles */
+.principles { gap: 14px; border: 0; }
+.principle, .principle + .principle { padding: 26px; border: 0; border-radius: 20px; }
+.principle:nth-child(1) { background: var(--green); color: #eef1e6; }
+.principle:nth-child(1) p { color: #c9d3c3; }
+.principle:nth-child(2) { background: var(--lime); }
+.principle:nth-child(2) p { color: #4a5440; }
+.principle:nth-child(3) { background: var(--rust-soft); }
+.principle:nth-child(3) h4 { color: #7c3418; }
+.principle:nth-child(4) { background: var(--sand); }
+@media (max-width: 960px) { .principle:nth-child(n+3) { border-top: 0; } .principle:nth-child(3) { padding-left: 26px; } }
+@media (max-width: 560px) { .principle, .principle + .principle { padding: 22px; border-top: 0; } }
+
+/* FAQ: the open question gets a soft green card */
+.faq details { transition: background .2s; border-radius: 0; }
+.faq details[open] { background: var(--lime-soft); border-radius: 16px; border-top-color: transparent; padding: 0 20px; margin: 4px 0; }
+.faq details[open] + details { border-top-color: transparent; }
+.faq details[open] summary { color: var(--green); }
+
+/* Dark footer */
+.site-footer { background: var(--forest); color: #eef1e6; margin-top: 96px; }
+.site-footer .footer-grid p, .site-footer .footer-grid h5, .site-footer .footer-bottom { color: #9fae9b; }
+.site-footer .footer-grid a { color: #dfe6d8; }
+.site-footer .footer-grid a:hover { color: var(--lime); }
+.site-footer .footer-bottom { border-top-color: rgba(255, 255, 255, .12); }
+
+/* Header links: a lime underline on hover */
+.nav > .nav-item > a, .nav > a { position: relative; }
+.nav > .nav-item > a::after {
+  content: ""; position: absolute; left: 0; right: 0; bottom: -6px; height: 2px; border-radius: 2px;
+  background: var(--green-2); transform: scaleX(0); transition: transform .2s;
+}
+.nav-item:hover > a::after, .nav-item:focus-within > a::after { transform: scaleX(1); }
+.nav-item:hover > a { color: var(--ink); }
+
+/* ==========================================================================
+   Hover previews in the header
+   ========================================================================== */
+
+.nav-item { position: relative; display: flex; align-items: center; height: 68px; }
+.nav-pop { display: none; }
+
+@media (hover: hover) and (min-width: 861px) {
+  .nav-pop {
+    display: block; position: absolute; top: 100%; left: 50%; z-index: 60;
+    transform: translate(-50%, 8px); opacity: 0; visibility: hidden; pointer-events: none;
+    transition: opacity .18s ease, transform .18s ease, visibility 0s linear .18s;
+  }
+  .nav-item:hover .nav-pop, .nav-item:focus-within .nav-pop {
+    opacity: 1; visibility: visible; pointer-events: auto; transform: translate(-50%, 0);
+    transition: opacity .18s ease .05s, transform .18s ease .05s, visibility 0s;
+  }
+  .nav-item.shut .nav-pop { opacity: 0; visibility: hidden; pointer-events: none; }
+}
+
+.pop-inner {
+  background: var(--ink); color: #eef1e6; border-radius: 18px; padding: 10px; border: 1px solid rgba(198, 212, 154, .22);
+  box-shadow: 0 24px 60px -20px rgba(10, 18, 12, .55); width: 340px;
+}
+.pop-inner a { text-decoration: none; color: inherit; }
+.pop-inner .pi {
+  flex: none; width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center;
+  background: rgba(198, 212, 154, .14); color: var(--lime);
+}
+.pop-inner .pi svg { width: 17px; height: 17px; }
+
+.pop-step, .pop-q, .pop-rule, .pop-spend a {
+  display: flex; align-items: center; gap: 12px; padding: 10px; border-radius: 12px; transition: background .15s;
+}
+.pop-step:hover, .pop-q:hover, .pop-rule:hover, .pop-spend a:hover, .pop-earn a:hover { background: rgba(255, 255, 255, .07); }
+.pop-step b { display: block; font-weight: 500; font-size: 14.5px; }
+.pop-step small { display: block; font-size: 12.5px; color: var(--lime); font-family: var(--mono); margin-top: 2px; }
+.pop-step:first-child .pi { background: var(--lime); color: var(--ink); }
+
+.pop-fair .pop-inner { width: 480px; }
+.pop-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2px; }
+.pop-rule { font-size: 14px; line-height: 1.3; }
+
+.pop-rw .pop-inner { width: 380px; }
+.pop-earn { display: grid; gap: 2px; padding-bottom: 8px; margin-bottom: 6px; border-bottom: 1px solid rgba(255, 255, 255, .1); }
+.pop-earn a { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 9px 10px; border-radius: 10px; font-size: 14px; transition: background .15s; }
+.pop-earn b { font-family: var(--mono); font-weight: 500; color: var(--ink); background: var(--lime); padding: 2px 8px; border-radius: 6px; font-size: 13px; }
+.pop-spend { display: grid; gap: 2px; }
+.pop-spend a { font-size: 14px; padding: 8px 10px; }
+
+.pop-faq .pop-inner { width: 400px; }
+.pop-q { font-size: 14px; line-height: 1.35; }
+
+.pop-more {
+  display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: 6px;
+  padding: 10px; border-radius: 12px; background: var(--lime); color: var(--ink) !important;
+  font-size: 14px; font-weight: 500; transition: background .15s;
+}
+.pop-more:hover { background: #d4e0ad; }
+
+/* Language list that opens on hover */
+.lang-wrap { position: relative; }
+.lang-pop { display: none; }
+@media (hover: hover) {
+  .lang-pop {
+    display: block; position: absolute; top: 100%; right: 0; padding-top: 8px; z-index: 60;
+    opacity: 0; visibility: hidden; transform: translateY(6px);
+    transition: opacity .16s, transform .16s, visibility 0s linear .16s;
+  }
+  .lang-wrap:hover .lang-pop, .lang-wrap:focus-within .lang-pop {
+    opacity: 1; visibility: visible; transform: none; transition: opacity .16s .04s, transform .16s .04s, visibility 0s;
+  }
+  .lang-wrap.shut .lang-pop { opacity: 0; visibility: hidden; }
+}
+.lang-pop ul {
+  list-style: none; margin: 0; padding: 6px; min-width: 170px; border-radius: 14px;
+  background: var(--ink); border: 1px solid rgba(198, 212, 154, .22); box-shadow: 0 20px 50px -18px rgba(10, 18, 12, .55);
+}
+.lang-pop button {
+  display: flex; width: 100%; align-items: center; justify-content: space-between; gap: 12px;
+  border: 0; background: none; color: #eef1e6; padding: 9px 12px; border-radius: 10px; cursor: pointer; font-size: 14px; text-align: left;
+}
+.lang-pop button span { font-family: var(--mono); font-size: 12px; color: #9fae9b; }
+.lang-pop button:hover { background: rgba(255, 255, 255, .08); }
+.lang-pop button.on { background: var(--lime); color: var(--ink); }
+.lang-pop button.on span { color: var(--green); }
+@media (max-width: 860px) {
+  .site-header.open .nav .nav-item { height: auto; width: 100%; }
+  .nav > .nav-item > a::after { display: none; }
+}

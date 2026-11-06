@@ -356,6 +356,20 @@ function errText(e) {
     }
   });
 
+  // On computers, the account menu also opens when the mouse rests on the profile picture.
+  if (window.matchMedia("(hover: hover)").matches) {
+    let closeTimer = 0;
+    const setOpen = (open) => {
+      const menu = account.querySelector(".account-menu");
+      const toggle = account.querySelector("[data-account-menu]");
+      if (!menu || !toggle) return;
+      menu.hidden = !open;
+      toggle.setAttribute("aria-expanded", String(open));
+    };
+    account.addEventListener("mouseenter", () => { clearTimeout(closeTimer); setOpen(true); });
+    account.addEventListener("mouseleave", () => { closeTimer = setTimeout(() => setOpen(false), 220); });
+  }
+
   function gateHTML(textKey) {
     return `
       <div class="gate-card">
