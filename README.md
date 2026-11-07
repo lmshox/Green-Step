@@ -17,6 +17,7 @@ Points can't be exchanged for money.
 | --- | --- |
 | `index.html` | Landing page |
 | `app.html` | The app: Spots, Report and Rewards tabs |
+| `garden.html` | Nature corner (test, moderators only): a calm 3D meadow with weather, music and nature sounds |
 | `css/styles.css` | Shared design system and landing styles |
 | `css/app.css` | App styles |
 | `js/site.js` | Header, mobile menu, scroll reveal and before/after slider |
@@ -30,6 +31,7 @@ Points can't be exchanged for money.
 | `firestore.rules` | Security rules: who may write what, and the fair-play checks |
 | `tests/` | Automated security-rules tests (run against the Firebase emulator) |
 | `js/i18n.js` | Translations (Uzbek, Russian, English) and the language switcher |
+| `js/garden.js`, `js/garden-scene.js`, `js/garden-audio.js` | Nature corner: moderator check, the 3D meadow (three.js in `js/vendor/`), and the music and nature sounds, all generated in the browser |
 
 ## Backend (Firebase)
 
@@ -67,6 +69,12 @@ Firebase console → **Firestore** → **Rules** → paste the contents of `fire
 2. Firebase console → **Authentication** → **Users** → copy their **User UID**.
 3. Firebase console → **Firestore** → **Start collection** `admins` → **Document ID** = that UID → add any field (e.g. `note` = `owner`) → **Save**.
 4. They reload the site and see **Approve / Reject** on cleaned spots.
+
+### Nature corner (test)
+
+`garden.html` is a calm 3D meadow: look around 360°, change the weather (clear, cloudy, rain, storm), the time (day, sunset, night) and the wind, with soft music and nature sounds (wind, grasshoppers, crickets, birds, an owl, rain, thunder). Flowers grow with the number of verified cleanups, and a user's own tree appears after their first cleanup.
+
+While it's being tested, the scene loads only for moderators: they find it in the account menu in the app. Everyone else sees a "moderators only" message, and the 3D files aren't downloaded. The page isn't linked publicly and asks search engines not to index it.
 
 ### Running the tests
 

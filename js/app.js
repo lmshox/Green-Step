@@ -340,6 +340,7 @@ function errText(e) {
         <div class="am-name">${esc(myName())}</div>
         ${u.email ? `<div class="am-mail">${esc(u.email)}</div>` : ""}
         ${state.admin ? `<div class="am-role">${esc(t("moderator"))}</div>` : ""}
+        ${state.admin ? `<a class="btn btn-light btn-sm btn-block am-garden" href="garden.html">${esc(t("garden_link"))}</a>` : ""}
         <button class="btn btn-ghost btn-sm btn-block" data-signout>${esc(t("signout"))}</button>
       </div>`;
   }
