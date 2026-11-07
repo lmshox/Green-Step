@@ -1,7 +1,7 @@
 // Yashil Qadam service worker: lets the site open and work without internet.
 // Strategy: always try the network first (so updates show up straight away),
 // and fall back to the saved copy when offline.
-const CACHE = "yq-shell-v1";
+const CACHE = "yq-shell-v2";
 const SHELL = [
   "./", "index.html", "app.html", "manifest.webmanifest",
   "css/styles.css", "css/app.css",
@@ -31,7 +31,8 @@ self.addEventListener("fetch", (e) => {
   if (!sameOrigin && !FONT_HOSTS.includes(url.hostname)) return; // Firebase etc. handle their own offline mode
 
   e.respondWith(
-    fetch(req)
+    // "no-cache" checks with the server every time (cheap when nothing changed), so updates show immediately.
+    fetch(sameOrigin ? new Request(req, { cache: "no-cache" }) : req)
       .then((res) => {
         if (res && (res.ok || res.type === "opaque")) {
           const copy = res.clone();
@@ -40,7 +41,7 @@ self.addEventListener("fetch", (e) => {
         return res;
       })
       .catch(() =>
-        caches.match(req, { ignoreSearch: req.mode === "navigate" }).then((hit) =>
+        caches.match(req, { ignoreSearch: true }).then((hit) =>
           hit || (req.mode === "navigate" ? caches.match("app.html") : undefined)
         )
       )

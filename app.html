@@ -65,12 +65,13 @@
 
 <div class="offline-bar" id="offline-bar" role="status" hidden></div>
 
-<main class="app-main">
+<main class="app-main mist">
+  <div class="mist-fog" aria-hidden="true"></div>
   <div class="wrap">
 
     <!-- SPOTS -->
     <section class="view" id="view-spots" hidden>
-      <div class="view-head">
+      <div class="view-head" data-mist-head>
         <div>
           <h1 data-i18n="a.spots.title">Ifloslangan <span class="serif">joylar</span></h1>
           <p data-i18n="a.spots.sub">Jamoa xabar bergan joylar. Birini tanlang, tozalang va ball oling.</p>
@@ -99,7 +100,7 @@
 
     <!-- REPORT -->
     <section class="view" id="view-report" hidden>
-      <div class="view-head">
+      <div class="view-head" data-mist-head>
         <div>
           <h1 data-i18n="a.report.title">Ifloslangan <span class="serif">joy haqida xabar</span></h1>
           <p data-i18n="a.report.sub">Bir daqiqacha vaqt oladi. Joy xaritaga qo‘shilgach, 10 ball olasiz.</p>
@@ -177,7 +178,7 @@
 
     <!-- WALLET / REWARDS -->
     <section class="view" id="view-wallet" hidden>
-      <div class="view-head">
+      <div class="view-head" data-mist-head>
         <div>
           <h1 data-i18n="a.w.title">Ballar va <span class="serif">mukofotlar</span></h1>
           <p data-i18n="a.w.sub">Ballaringizni sovg‘alarga almashtiring, boshqalarga ulashing va ko‘ngillilik sertifikatingizni oling.</p>

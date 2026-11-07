@@ -555,13 +555,15 @@ html[lang="ru"] .story-intro h1 { font-size: clamp(36px, 4.6vw, 64px); }
 :root { --cream: #f1ead8; --mist-1: #1b3626; --mist-2: #22412e; }
 
 .mist {
-  position: relative; overflow: hidden; color: var(--cream); padding-top: 120px;
+  --m: 520px; /* where the green ends and the mist begins: set from the heading's height by site.js */
+  position: relative; overflow: hidden; padding-top: 120px;
   background:
     radial-gradient(ellipse 60% 420px at 50% 120px, rgba(74, 112, 80, .55), transparent 70%),
-    linear-gradient(180deg, var(--mist-1) 0, var(--mist-2) 520px, #4a684e 690px, #8fa185 790px, #c4cbb3 880px, #e2e1d2 980px, var(--paper) 1100px);
+    linear-gradient(180deg, var(--mist-1) 0, var(--mist-2) var(--m), #4a684e calc(var(--m) + 170px), #8fa185 calc(var(--m) + 270px),
+      #c4cbb3 calc(var(--m) + 360px), #e2e1d2 calc(var(--m) + 460px), var(--paper) calc(var(--m) + 580px));
 }
 .mist-fog {
-  position: absolute; left: -10%; right: -10%; top: 520px; height: 560px; pointer-events: none;
+  position: absolute; left: -10%; right: -10%; top: var(--m); height: 560px; pointer-events: none;
   background:
     radial-gradient(ellipse 30% 90px at 18% 52%, rgba(241, 236, 222, .75), transparent 70%),
     radial-gradient(ellipse 34% 110px at 62% 48%, rgba(241, 236, 222, .7), transparent 70%),
@@ -614,11 +616,7 @@ html[lang="ru"] .story-intro h1 { font-size: clamp(36px, 4.6vw, 64px); }
 .cta.mist-card .mist-fog { top: auto; bottom: -60px; height: 360px; }
 
 @media (max-width: 860px) {
-  .mist { padding-top: 88px;
-    background:
-      radial-gradient(ellipse 90% 380px at 50% 120px, rgba(74, 112, 80, .55), transparent 70%),
-      linear-gradient(180deg, var(--mist-1) 0, var(--mist-2) 640px, #4a684e 800px, #8fa185 900px, #c4cbb3 990px, #e2e1d2 1090px, var(--paper) 1210px); }
-  .mist-fog { top: 640px; }
+  .mist { padding-top: 88px; }
   .mist-head { margin-bottom: 96px; }
   .mist-head p, .mist-card p { font-size: 16px; }
   #how .step, #how .step + .step { padding: 24px; }
@@ -626,7 +624,6 @@ html[lang="ru"] .story-intro h1 { font-size: clamp(36px, 4.6vw, 64px); }
 }
 
 /* Fair play on warm sand, each rule with its own colour */
-#fair-play .eyebrow { color: #7a6a45; }
 #fair-play .rule { background: #f7f2e6; border-color: rgba(122, 106, 69, .18); transition: transform .2s, box-shadow .2s; }
 #fair-play .rule:hover { transform: translateY(-3px); box-shadow: var(--shadow); }
 #fair-play .rule:nth-child(1) .rule-icon { background: var(--green); color: var(--lime); }
@@ -789,3 +786,20 @@ html[lang="ru"] .story-intro h1 { font-size: clamp(36px, 4.6vw, 64px); }
   .nav > .nav-item > a::after { display: none; }
   .nav-pop { padding-top: 14px; }
 }
+
+/* ---------- Green-to-mist headings in every section and app tab ---------- */
+.mist > .wrap, .mist > .view, .app-main.mist > .wrap { position: relative; z-index: 1; }
+.mist .section-head { display: block; text-align: center; max-width: 900px; margin: 0 auto 120px; }
+.mist .section-head h2 { font-size: clamp(38px, 5.4vw, 70px); line-height: 1.02; color: var(--cream); margin: 22px auto 0; max-width: 15em; }
+.mist .section-head h2 .serif { color: #d7e2b0; }
+.mist .section-head p { color: rgba(241, 234, 216, .78); margin: 20px auto 0; max-width: 34em; }
+.mist .section-head p a { color: var(--lime); }
+.mist .eyebrow { color: var(--lime); }
+@media (max-width: 860px) { .mist .section-head { margin-bottom: 96px; } }
+
+/* FAQ: heading on top, answers in one cream card */
+.faq-wrap { max-width: 900px; }
+.mist .faq { background: rgba(251, 248, 238, .95); border-radius: 26px; padding: 10px 30px; box-shadow: 0 30px 60px -36px rgba(16, 32, 22, .5); }
+.mist .faq details:first-child { border-top: 0; }
+.mist .faq details:last-child { border-bottom: 0; }
+@media (max-width: 560px) { .mist .faq { padding: 6px 18px; } }
