@@ -550,23 +550,80 @@ html[lang="ru"] .story-intro h1 { font-size: clamp(36px, 4.6vw, 64px); }
 .band-sand { background: var(--sand); }
 @media (max-width: 860px) { .band-lime { padding: 64px 0; } }
 
-/* How it works on deep green */
-#how .eyebrow { color: var(--lime); }
-#how .section-head h2 .serif { color: var(--lime); }
-#how .section-head p { color: #c9d3c3; }
-#how .steps { border-top-color: rgba(198, 212, 154, .55); gap: 16px; border-top: 0; }
-#how .step, #how .step + .step {
-  padding: 28px; border: 1px solid rgba(255, 255, 255, .1); border-left: 1px solid rgba(255, 255, 255, .1);
-  border-radius: 20px; background: rgba(255, 255, 255, .05); transition: background .2s, transform .2s;
+/* ---------- Green-to-mist sections (How it works, final call to action) ---------- */
+
+:root { --cream: #f1ead8; --mist-1: #1b3626; --mist-2: #22412e; }
+
+.mist {
+  position: relative; overflow: hidden; color: var(--cream); padding-top: 120px;
+  background:
+    radial-gradient(ellipse 60% 420px at 50% 120px, rgba(74, 112, 80, .55), transparent 70%),
+    linear-gradient(180deg, var(--mist-1) 0, var(--mist-2) 520px, #4a684e 690px, #8fa185 790px, #c4cbb3 880px, #e2e1d2 980px, var(--paper) 1100px);
 }
-#how .step:hover { background: rgba(255, 255, 255, .09); transform: translateY(-3px); }
-#how .step-num { color: var(--lime); }
-#how .step-icon { background: var(--lime); border-color: var(--lime); }
-#how .step-icon svg { color: var(--ink); }
-#how .step p { color: #c9d3c3; }
+.mist-fog {
+  position: absolute; left: -10%; right: -10%; top: 520px; height: 560px; pointer-events: none;
+  background:
+    radial-gradient(ellipse 30% 90px at 18% 52%, rgba(241, 236, 222, .75), transparent 70%),
+    radial-gradient(ellipse 34% 110px at 62% 48%, rgba(241, 236, 222, .7), transparent 70%),
+    radial-gradient(ellipse 26% 80px at 88% 58%, rgba(241, 236, 222, .65), transparent 70%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='2600' height='420'%3E%3Cfilter id='f' x='0' y='0'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.0045 .011' numOctaves='4' seed='7' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .95 0 0 0 0 .94 0 0 0 0 .88 2 0 0 0 -.78'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23f)'/%3E%3C/svg%3E") 50% 0 / 2600px 420px repeat-x;
+  -webkit-mask-image: linear-gradient(180deg, transparent 0, #000 35%, #000 70%, transparent 100%);
+  mask-image: linear-gradient(180deg, transparent 0, #000 35%, #000 70%, transparent 100%);
+}
+.mist > .wrap, .mist-card > *:not(.mist-fog) { position: relative; z-index: 1; }
+
+.mist-head { text-align: center; max-width: 900px; margin: 0 auto 120px; }
+.mist-head h2, .mist-card h2 {
+  font-size: clamp(38px, 5.6vw, 76px); line-height: 1.02; letter-spacing: -0.035em; color: var(--cream);
+  margin: 26px auto 0; max-width: 15em;
+}
+.mist-head h2 .serif, .mist-card h2 .serif { font-style: italic; color: #d7e2b0; }
+.mist-head p, .mist-card p { color: rgba(241, 234, 216, .78); font-size: 17px; max-width: 34em; margin: 22px auto 0; }
+.mist-chips { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px 22px; font-size: 13.5px; color: rgba(241, 234, 216, .75); }
+.mist-chips > span { display: inline-flex; align-items: center; gap: 7px; }
+.mist-chips svg { width: 14px; height: 14px; color: var(--lime); }
+.mist-cta, .mist-card .hero-cta { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-top: 34px; }
+
+.btn-cream { background: var(--cream); color: var(--ink); }
+.btn-cream:hover { background: #fffaf0; }
+.btn-mist-ghost { color: var(--cream); border-color: rgba(241, 234, 216, .4); }
+.btn-mist-ghost:hover { border-color: var(--cream); background: rgba(255, 255, 255, .06); }
+
+/* The three steps sit in the mist as soft cream cards */
+#how .steps { border-top: 0; gap: 16px; }
+#how .step, #how .step + .step {
+  padding: 30px; border: 1px solid rgba(33, 61, 44, .1); border-radius: 22px; color: var(--ink);
+  background: rgba(251, 248, 238, .92); box-shadow: 0 30px 60px -36px rgba(16, 32, 22, .5); transition: transform .2s, box-shadow .2s;
+}
+#how .step:hover { transform: translateY(-4px); box-shadow: 0 36px 70px -36px rgba(16, 32, 22, .6); }
+#how .step-num { color: var(--green-2); }
+#how .step-icon { background: var(--green); border-color: var(--green); }
+#how .step-icon svg { color: var(--lime); }
+#how .step p { color: var(--ink-2); }
 #how .step .tag { background: var(--lime); color: var(--ink); }
-#how .step .tag.opt { background: rgba(255, 255, 255, .12); color: #eef1e6; }
-@media (max-width: 860px) { #how .step + .step { border-top: 1px solid rgba(255, 255, 255, .1); } }
+#how .step .tag.opt { background: var(--paper-2); color: var(--ink-2); }
+
+/* Final call to action: the same green-to-mist look in a rounded card */
+.cta.mist-card {
+  text-align: center; padding: 100px 48px 230px; color: var(--cream);
+  background:
+    radial-gradient(ellipse 60% 300px at 50% 80px, rgba(74, 112, 80, .55), transparent 70%),
+    linear-gradient(180deg, var(--mist-1) 0, var(--mist-2) 55%, #50704f 72%, #b3bfa3 88%, #e6e3d2 100%);
+}
+.cta.mist-card h2 { max-width: 13em; }
+.cta.mist-card .mist-fog { top: auto; bottom: -60px; height: 360px; }
+
+@media (max-width: 860px) {
+  .mist { padding-top: 88px;
+    background:
+      radial-gradient(ellipse 90% 380px at 50% 120px, rgba(74, 112, 80, .55), transparent 70%),
+      linear-gradient(180deg, var(--mist-1) 0, var(--mist-2) 640px, #4a684e 800px, #8fa185 900px, #c4cbb3 990px, #e2e1d2 1090px, var(--paper) 1210px); }
+  .mist-fog { top: 640px; }
+  .mist-head { margin-bottom: 96px; }
+  .mist-head p, .mist-card p { font-size: 16px; }
+  #how .step, #how .step + .step { padding: 24px; }
+  .cta.mist-card { padding: 64px 22px 190px; }
+}
 
 /* Fair play on warm sand, each rule with its own colour */
 #fair-play .eyebrow { color: #7a6a45; }
@@ -716,4 +773,19 @@ html[lang="ru"] .story-intro h1 { font-size: clamp(36px, 4.6vw, 64px); }
 @media (max-width: 860px) {
   .site-header.open .nav .nav-item { height: auto; width: 100%; }
   .nav > .nav-item > a::after { display: none; }
+}
+
+/* ---------- Header: centred pill menu ---------- */
+@media (min-width: 861px) {
+  .site-header .wrap { display: grid; grid-template-columns: 1fr auto 1fr; }
+  .site-header .header-actions { justify-self: end; }
+  .nav {
+    gap: 2px; padding: 4px; border-radius: 999px;
+    background: rgba(33, 61, 44, .06); border: 1px solid rgba(33, 61, 44, .1);
+  }
+  .nav-item { height: auto; }
+  .nav > .nav-item > a { display: block; padding: 7px 15px; border-radius: 999px; font-size: 14.5px; transition: background .15s, color .15s; }
+  .nav-item:hover > a, .nav-item:focus-within > a { background: var(--green); color: var(--cream); }
+  .nav > .nav-item > a::after { display: none; }
+  .nav-pop { padding-top: 14px; }
 }

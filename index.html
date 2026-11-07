@@ -223,14 +223,22 @@
   </section>
 
   <!-- How it works -->
-  <section class="section band band-green" id="how">
+  <section class="section mist" id="how">
+    <div class="mist-fog" aria-hidden="true"></div>
     <div class="wrap">
-      <div class="section-head reveal">
-        <div>
-          <span class="eyebrow" data-i18n="l.how.eyebrow">Qanday ishlaydi</span>
-          <h2 data-i18n="l.how.title"><span class="serif">“Kimdir tozalasa edi”</span> degan fikrdan natijagacha — uch qadam.</h2>
+      <div class="mist-head reveal">
+        <div class="mist-chips">
+          <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span data-i18n="l.story.c1t">Belgilang</span></span>
+          <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span data-i18n="l.story.c2t">Tozalang</span></span>
+          <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span data-i18n="l.story.c3t">Tasdiqlang</span></span>
+          <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span data-i18n="l.story.c4t">Mukofot oling</span></span>
         </div>
+        <h2 data-i18n="l.how.title"><span class="serif">“Kimdir tozalasa edi”</span> degan fikrdan natijagacha — uch qadam.</h2>
         <p data-i18n="l.how.lede">Sizga jamoa, ruxsatnoma yoki reja kerak emas. Xabar berish bir daqiqadan kam vaqt oladi. Tozalash-tozalamaslik ham, ballarni nimaga sarflash ham — o‘zingizning ixtiyoringizda.</p>
+        <div class="mist-cta">
+          <a href="app.html#report" class="btn btn-cream" data-i18n="l.header.report">Xabar berish</a>
+          <a href="app.html" class="btn btn-mist-ghost" data-i18n="l.header.app">Ilovani ochish</a>
+        </div>
       </div>
 
       <div class="steps reveal">
@@ -504,19 +512,13 @@
   <!-- CTA -->
   <section>
     <div class="wrap">
-      <div class="cta reveal">
-        <svg class="cta-lines" viewBox="0 0 400 400" fill="none" stroke="#c6d49a" stroke-width="1.2" aria-hidden="true">
-          <path d="M200 40 C290 40 360 110 360 200 C360 290 290 360 200 360 C110 360 40 290 40 200 C40 110 110 40 200 40Z"/>
-          <path d="M205 75 C275 72 330 130 328 200 C326 268 272 326 202 324 C132 322 76 270 76 200 C76 130 135 78 205 75Z"/>
-          <path d="M208 110 C258 106 296 150 294 200 C292 248 254 290 204 288 C154 286 112 250 112 200 C112 150 158 114 208 110Z"/>
-          <path d="M210 145 C240 142 262 170 260 200 C258 228 236 254 206 252 C176 250 148 228 148 200 C148 170 180 148 210 145Z"/>
-          <path d="M210 178 C222 176 232 188 232 200 C232 212 222 222 210 222 C198 222 186 212 186 200 C186 188 198 180 210 178Z"/>
-        </svg>
+      <div class="cta mist-card reveal">
+        <div class="mist-fog" aria-hidden="true"></div>
         <h2 data-i18n="l.cta.title">Navbatdagi tozalash <span class="serif">bitta suratdan</span> boshlanadi.</h2>
         <p data-i18n="l.cta.text">Bugun yo‘lingizda uchragan birinchi iflos joy haqida xabar bering. U bir daqiqada xaritada paydo bo‘ladi.</p>
         <div class="hero-cta">
-          <a href="app.html#report" class="btn btn-light" data-i18n="l.cta.report">Ifloslangan joy haqida xabar berish</a>
-          <a href="app.html" class="btn btn-ghost" data-i18n="l.cta.browse">Ochiq joylarni ko‘rish</a>
+          <a href="app.html#report" class="btn btn-cream" data-i18n="l.cta.report">Ifloslangan joy haqida xabar berish</a>
+          <a href="app.html" class="btn btn-mist-ghost" data-i18n="l.cta.browse">Ochiq joylarni ko‘rish</a>
         </div>
       </div>
     </div>
