@@ -47,29 +47,6 @@
     set();
   });
 
-  // Green-to-mist sections: the green ends right under the heading, whatever its height.
-  const mists = document.querySelectorAll(".mist");
-  function sizeMist() {
-    mists.forEach((m) => {
-      const head = [...m.querySelectorAll("[data-mist-head]")].find((h) => h.offsetHeight > 0);
-      if (!head) return;
-      const bottom = head.getBoundingClientRect().bottom - m.getBoundingClientRect().top;
-      m.style.setProperty("--m", Math.round(bottom + 28) + "px");
-    });
-  }
-  if (mists.length) {
-    sizeMist();
-    window.addEventListener("resize", sizeMist);
-    document.addEventListener("langchange", () => requestAnimationFrame(sizeMist));
-    if (document.fonts && document.fonts.ready) document.fonts.ready.then(sizeMist);
-    if ("ResizeObserver" in window) {
-      const ro = new ResizeObserver(sizeMist);
-      document.querySelectorAll("[data-mist-head]").forEach((h) => ro.observe(h));
-    }
-    // Headings slide in slightly when revealed; measure again once they've settled.
-    document.querySelectorAll("[data-mist-head]").forEach((h) => h.addEventListener("transitionend", sizeMist));
-  }
-
   // Header previews: after a link inside one is used, close it until the mouse leaves.
   document.querySelectorAll(".nav-item").forEach((item) => {
     item.addEventListener("click", (e) => {
