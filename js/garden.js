@@ -97,6 +97,49 @@ async function boot(user) {
   $("meadow").addEventListener("pointerdown", hideHint, { once: true });
   setTimeout(hideHint, 9000);
 
+  /* ---------- full screen: only nature on the whole screen ---------- */
+  const root = document.documentElement, body = document.body, fullBtn = $("g-full");
+  const request = root.requestFullscreen || root.webkitRequestFullscreen;
+  const exit = document.exitFullscreen || document.webkitExitFullscreen;
+  const isFull = () => !!(document.fullscreenElement || document.webkitFullscreenElement);
+  if (!request) fullBtn.hidden = true; // e.g. Safari on iPhone, which doesn't allow it for web pages
+  const toggleFull = () => {
+    if (isFull()) exit.call(document);
+    else Promise.resolve(request.call(root, { navigationUI: "hide" })).catch(() => {});
+  };
+  fullBtn.addEventListener("click", toggleFull);
+  window.addEventListener("keydown", (e) => {
+    if ((e.key === "f" || e.key === "F") && request && !e.target.closest("input, select, textarea")) toggleFull();
+  });
+
+  // In full screen the controls fade out after a few quiet seconds; a tap or a mouse move brings them back.
+  let idleTimer = 0, overUI = false, downAt = null;
+  const wake = () => {
+    body.classList.remove("ui-hidden");
+    clearTimeout(idleTimer);
+    if (isFull()) idleTimer = setTimeout(() => { if (!overUI) body.classList.add("ui-hidden"); }, 3500);
+  };
+  const onFullChange = () => {
+    const full = isFull();
+    body.classList.toggle("is-full", full);
+    fullBtn.setAttribute("aria-pressed", String(full));
+    wake();
+  };
+  document.addEventListener("fullscreenchange", onFullChange);
+  document.addEventListener("webkitfullscreenchange", onFullChange);
+  document.querySelectorAll(".g-top, .g-panel, .g-panel-toggle").forEach((el) => {
+    el.addEventListener("pointerenter", () => { overUI = true; wake(); });
+    el.addEventListener("pointerleave", () => { overUI = false; wake(); });
+  });
+  window.addEventListener("pointermove", (e) => { if (e.pointerType === "mouse" && !e.buttons) wake(); });
+  window.addEventListener("pointerdown", (e) => { downAt = { x: e.clientX, y: e.clientY }; });
+  window.addEventListener("pointerup", (e) => {
+    // A tap (not a drag to look around) shows the controls.
+    if (downAt && Math.hypot(e.clientX - downAt.x, e.clientY - downAt.y) < 8) wake();
+    downAt = null;
+  });
+  window.addEventListener("keydown", wake);
+
   // Don't draw while the tab is hidden.
   document.addEventListener("visibilitychange", () => (document.hidden ? meadow.stop() : meadow.start()));
 }
