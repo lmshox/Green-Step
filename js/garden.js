@@ -89,7 +89,7 @@ async function boot(user) {
   /* ---------- panel and hint ---------- */
   const panel = $("g-panel"), toggle = $("g-panel-toggle");
   const setPanel = (open) => { panel.classList.toggle("closed", !open); toggle.setAttribute("aria-expanded", String(open)); };
-  setPanel(window.innerWidth > 760);
+  setPanel(window.innerWidth > 760 && window.innerHeight > 560); // closed by default on phones, upright or sideways
   toggle.addEventListener("click", () => setPanel(panel.classList.contains("closed")));
 
   const hint = $("g-hint");
@@ -108,6 +108,36 @@ async function boot(user) {
     else Promise.resolve(request.call(root, { navigationUI: "hide" })).catch(() => {});
   };
   fullBtn.addEventListener("click", toggleFull);
+
+  /* ---------- phones: landscape ---------- */
+  const phone = window.matchMedia("(pointer: coarse)").matches && Math.min(screen.width, screen.height) < 600;
+  const portrait = window.matchMedia("(orientation: portrait)");
+  const canLock = !!(request && screen.orientation && typeof screen.orientation.lock === "function");
+  const rotate = $("g-rotate"), rotGo = $("g-rot-go");
+  let rotSkipped = false;
+  try { rotSkipped = sessionStorage.getItem("yq:rotSkip") === "1"; } catch (e) { /* private mode */ }
+  rotGo.hidden = !canLock;
+  $("g-rot-note").hidden = canLock;
+
+  // Full screen in landscape, where the phone allows it (Android); otherwise just full screen.
+  async function goLandscape() {
+    try { if (!isFull()) await request.call(root, { navigationUI: "hide" }); } catch (e) { /* not allowed */ }
+    try { await screen.orientation.lock("landscape"); } catch (e) { /* not supported (e.g. iPhone) */ }
+  }
+  const checkRotate = () => { rotate.hidden = !(phone && portrait.matches && !rotSkipped); };
+  rotGo.addEventListener("click", goLandscape);
+  $("g-rot-skip").addEventListener("click", () => {
+    rotSkipped = true;
+    try { sessionStorage.setItem("yq:rotSkip", "1"); } catch (e) { /* private mode */ }
+    checkRotate();
+  });
+  portrait.addEventListener("change", checkRotate);
+  checkRotate();
+  // The full-screen button on a phone also turns the view sideways.
+  if (phone && canLock) {
+    fullBtn.removeEventListener("click", toggleFull);
+    fullBtn.addEventListener("click", () => (isFull() ? exit.call(document) : goLandscape()));
+  }
   window.addEventListener("keydown", (e) => {
     if ((e.key === "f" || e.key === "F") && request && !e.target.closest("input, select, textarea")) toggleFull();
   });

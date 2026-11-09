@@ -112,3 +112,45 @@
 .g-top, .g-panel-toggle { transition: opacity .5s; }
 .ui-hidden .g-top, .ui-hidden .g-panel, .ui-hidden .g-panel-toggle, .ui-hidden .g-hint { opacity: 0; pointer-events: none; }
 .ui-hidden .meadow { cursor: none; }
+
+/* ---------- Phones: "turn sideways" prompt ---------- */
+.g-rotate { position: fixed; inset: 0; z-index: 15; display: grid; place-items: center; padding: 28px; background: rgba(12, 22, 16, .82); text-align: center; }
+.g-rotate[hidden] { display: none; }
+.g-rotate-card { max-width: 340px; }
+.g-rotate-icon { width: 92px; height: 92px; margin: 0 auto 18px; color: var(--lime); }
+.g-rotate-icon .phone { transform-origin: 32px 28px; animation: g-turn 2.6s ease-in-out infinite; }
+@keyframes g-turn { 0%, 25% { transform: rotate(0); } 55%, 85% { transform: rotate(-90deg); } 100% { transform: rotate(0); } }
+.g-rotate h2 { font-size: 24px; letter-spacing: -0.02em; }
+.g-rotate p { color: #c3cdbd; margin-top: 10px; font-size: 15px; }
+.g-rotate .g-rotate-note { font-size: 13px; color: #9fae9b; }
+.g-rotate-actions { display: grid; gap: 10px; margin-top: 24px; }
+.g-rot-skip { color: #eef1e6; border-color: rgba(233, 240, 207, .3); }
+@media (prefers-reduced-motion: reduce) { .g-rotate-icon .phone { animation: none; transform: rotate(-90deg); } }
+
+/* ---------- Phones held sideways: compact bar, controls in a side panel ---------- */
+@media (orientation: landscape) and (max-height: 520px) {
+  .g-top {
+    padding: 8px max(10px, env(safe-area-inset-right)) 8px max(10px, env(safe-area-inset-left));
+    gap: 8px;
+  }
+  .g-chip, .g-lang, .g-sound, .g-full { height: 36px; }
+  .g-full { width: 36px; }
+  .g-title { display: none; }
+  .g-back span { display: none; }
+  .g-sound span { display: none !important; }
+  .g-sound { width: 36px; padding: 0; justify-content: center; }
+  .g-panel-toggle { display: inline-flex; left: max(10px, env(safe-area-inset-left)); bottom: 10px; height: 36px; }
+  .g-panel {
+    left: auto; right: max(10px, env(safe-area-inset-right)); top: 54px; bottom: 10px; transform: none;
+    width: min(360px, 46vw); padding: 12px; gap: 10px; overflow-y: auto; border-radius: 18px; align-content: start;
+  }
+  .g-panel.closed { transform: translateX(16px); }
+  .g-row { gap: 10px; }
+  .g-group { flex-wrap: wrap; gap: 6px; }
+  .g-seg { flex-wrap: wrap; border-radius: 14px; }
+  .g-seg button { height: 30px; padding: 0 9px; font-size: 12.5px; }
+  .g-slider { flex-basis: 100%; font-size: 12.5px; }
+  .g-test { padding-top: 10px; font-size: 12.5px; }
+  .g-help { font-size: 11.5px; }
+  .g-hint { font-size: 13px; padding: 9px 14px; }
+}

@@ -107,6 +107,23 @@
   <p class="g-help" data-i18n="g.growth_help">Har bir tasdiqlangan tozalash o‘tloqqa gullar qo‘shadi. Birinchi tozalashdan so‘ng sizning daraxtingiz paydo bo‘ladi.</p>
 </div>
 
+<!-- Upright phone: suggest turning it sideways -->
+<div class="g-rotate" id="g-rotate" hidden>
+  <div class="g-rotate-card">
+    <svg class="g-rotate-icon" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <g class="phone"><rect x="22" y="10" width="20" height="36" rx="4"/><path d="M30 41h4"/></g>
+      <path d="M48 14a18 18 0 0 1 6 12M54 26l2-5M54 26l-5-1.5" opacity=".7"/>
+    </svg>
+    <h2 data-i18n="g.rot_t">Telefonni yon tomonga burang</h2>
+    <p data-i18n="g.rot_p">Tabiat burchagi gorizontal holatda ancha chiroyli ko‘rinadi.</p>
+    <p class="g-rotate-note" id="g-rot-note" data-i18n="g.rot_note">Ekran burilmasa, telefonning “avto-burilish” (aylantirish qulfi) sozlamasini yoqing.</p>
+    <div class="g-rotate-actions">
+      <button type="button" class="btn btn-light" id="g-rot-go" hidden data-i18n="g.rot_go">Gorizontal rejimda ochish</button>
+      <button type="button" class="btn g-rot-skip" id="g-rot-skip" data-i18n="g.rot_skip">Vertikal davom etish</button>
+    </div>
+  </div>
+</div>
+
 <!-- Access check -->
 <div class="g-gate" id="g-gate">
   <div class="g-gate-card">

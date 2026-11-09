@@ -668,15 +668,22 @@ export function createMeadow(canvas, opts = {}) {
   /* Looking around                                                      */
   /* ------------------------------------------------------------------ */
 
-  let yaw = 0, pitch = 0.04, vYaw = 0, vPitch = 0, fov = 66, dragging = false, lastX = 0, lastY = 0, idle = 0;
+  let yaw = 0, pitch = 0.04, vYaw = 0, vPitch = 0, zoom = 1, dragging = false, lastX = 0, lastY = 0, idle = 0;
+  // The vertical viewing angle suits the screen's shape: wider for an upright phone,
+  // narrower for a wide landscape phone, so the meadow looks natural either way.
+  const baseFov = () => {
+    const a = camera.aspect || 1.6;
+    return a < 1 ? 80 : a > 1.9 ? 54 : a > 1.6 ? 60 : 66;
+  };
+  let fov = baseFov();
   const pointers = new Map();
-  let pinch0 = 0, fov0 = fov;
+  let pinch0 = 0, zoom0 = zoom;
   canvas.style.touchAction = "none";
   canvas.addEventListener("pointerdown", (e) => {
     pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
     canvas.setPointerCapture(e.pointerId);
     dragging = true; lastX = e.clientX; lastY = e.clientY; idle = 0;
-    if (pointers.size === 2) { const [a, b] = [...pointers.values()]; pinch0 = Math.hypot(a.x - b.x, a.y - b.y); fov0 = fov; }
+    if (pointers.size === 2) { const [a, b] = [...pointers.values()]; pinch0 = Math.hypot(a.x - b.x, a.y - b.y); zoom0 = zoom; }
   });
   canvas.addEventListener("pointermove", (e) => {
     if (!pointers.has(e.pointerId)) return;
@@ -684,11 +691,11 @@ export function createMeadow(canvas, opts = {}) {
     if (pointers.size === 2) {
       const [a, b] = [...pointers.values()];
       const d = Math.hypot(a.x - b.x, a.y - b.y);
-      if (pinch0) fov = clamp(fov0 * (pinch0 / d), 30, 80);
+      if (pinch0) zoom = clamp(zoom0 * (pinch0 / d), 0.45, 1.2);
       return;
     }
     if (!dragging) return;
-    const k = (fov / 66) * 0.0042;
+    const k = (camera.fov / 66) * 0.0042;
     vYaw = -(e.clientX - lastX) * k; vPitch = -(e.clientY - lastY) * k;
     yaw += vYaw; pitch = clamp(pitch + vPitch, -0.5, 0.75);
     lastX = e.clientX; lastY = e.clientY;
@@ -696,7 +703,7 @@ export function createMeadow(canvas, opts = {}) {
   const up = (e) => { pointers.delete(e.pointerId); if (!pointers.size) dragging = false; pinch0 = 0; };
   canvas.addEventListener("pointerup", up);
   canvas.addEventListener("pointercancel", up);
-  canvas.addEventListener("wheel", (e) => { e.preventDefault(); fov = clamp(fov + e.deltaY * 0.03, 30, 80); }, { passive: false });
+  canvas.addEventListener("wheel", (e) => { e.preventDefault(); zoom = clamp(zoom * (1 + e.deltaY * 0.0012), 0.45, 1.2); }, { passive: false });
   const keys = new Set();
   window.addEventListener("keydown", (e) => { if (e.key.startsWith("Arrow")) keys.add(e.key); });
   window.addEventListener("keyup", (e) => keys.delete(e.key));
@@ -714,6 +721,7 @@ export function createMeadow(canvas, opts = {}) {
     if (!w || !h) return;
     renderer.setSize(w, h, false);
     camera.aspect = w / h;
+    camera.fov = fov = baseFov() * zoom; // turning the phone changes the view at once
     camera.updateProjectionMatrix();
     flyU.uPx.value = h * ratio * 0.016;
   }
@@ -741,6 +749,7 @@ export function createMeadow(canvas, opts = {}) {
     camera.rotation.order = "YXZ";
     camera.rotation.y = -yaw;
     camera.rotation.x = -pitch;
+    fov = baseFov() * zoom;
     if (Math.abs(camera.fov - fov) > 0.01) { camera.fov = lerp(camera.fov, fov, 0.2); camera.updateProjectionMatrix(); }
 
     // Ease every look value towards the chosen weather and time of day.
