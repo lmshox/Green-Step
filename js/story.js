@@ -306,11 +306,14 @@
       grow(top[0] + (i - 1.5) * 8, top[1] + 6, a, len, w, 1);
     });
 
-    // Surface roots.
-    const roots = [];
-    [[-1, 230, 0.07], [-1, 150, 0.18], [1, 210, 0.08], [1, 140, 0.2], [-0.2, 90, 0.5], [0.3, 100, 0.45]].forEach(([dir, len, drop]) => {
-      const x0 = TX + dir * 50, y0 = BASE_Y - 6;
-      roots.push([x0, y0, x0 + dir * len, y0 + 14 + drop * 60, 22, 2]);
+    // Surface roots: rounded and tapering, arching out of the flare and sinking
+    // into the soil (direction, length, how deep the tip goes, width, arch).
+    const roots = [
+      [-1, 132, 8, 30, 12], [-0.75, 74, 14, 24, 8], [1, 122, 9, 30, 11], [0.8, 70, 15, 22, 7],
+      [-0.35, 40, 18, 20, 5], [0.3, 44, 18, 20, 5],
+    ].map(([dir, len, drop, w, arch]) => {
+      const x0 = TX + dir * 40, y0 = BASE_Y - 16;
+      return { x0, y0, x1: x0 + dir * len, y1: BASE_Y + drop, w, arch };
     });
 
     // Foliage clusters packed through the crown (Poisson-style spacing).
@@ -329,7 +332,7 @@
     const maxY = BASE_Y + 80;
     for (const c of clusters) { minX = Math.min(minX, c.x - c.r - 20); maxX = Math.max(maxX, c.x + c.r + 20); minY = Math.min(minY, c.y - c.r - 20); }
     for (const b of branches) { minX = Math.min(minX, b[0], b[2]); maxX = Math.max(maxX, b[0], b[2]); minY = Math.min(minY, b[1], b[3]); }
-    for (const r of roots) { minX = Math.min(minX, r[2] - 20); maxX = Math.max(maxX, r[2] + 20); }
+    for (const r of roots) { minX = Math.min(minX, r.x1 - 40); maxX = Math.max(maxX, r.x1 + 40); }
     return { branches, trunk, roots, clusters, ENV, TRUNK_TOP, box: [minX - 30, minY - 30, maxX + 30, maxY] };
   }
 
@@ -362,11 +365,63 @@
     g.beginPath(); g.arc(x1, y1, h1, 0, TAU); g.fill();
   }
 
+  // A root: a tapering tube whose back arches up a little before it sinks into the soil.
+  function drawRoot(g, r) {
+    const { x0, y0, x1, y1, w, arch } = r;
+    drawLimb(g, [x0, y0, x1, y1, w, 3, 0, lerp(x0, x1, 0.4), lerp(y0, y1, 0.3) - arch]);
+  }
+
+  // Fade the bottom of the trunk and roots into the ground along an uneven line,
+  // so the tree looks planted rather than standing on the grass.
+  function buryBase(g) {
+    g.save();
+    g.globalCompositeOperation = "destination-out";
+    const R = rng(57);
+    g.beginPath();
+    g.moveTo(TX - 300, BASE_Y + 40);
+    for (let x = TX - 300; x <= TX + 300; x += 12) g.lineTo(x, BASE_Y + 3 + Math.sin(x * 0.09) * 2.5 + (R() - 0.5) * 5);
+    g.lineTo(TX + 300, BASE_Y + 40);
+    g.closePath();
+    const gr = g.createLinearGradient(0, BASE_Y - 4, 0, BASE_Y + 16);
+    gr.addColorStop(0, "rgba(0,0,0,0)");
+    gr.addColorStop(1, "rgba(0,0,0,1)");
+    g.fillStyle = gr;
+    g.fill();
+    g.restore();
+  }
+
+  // Grass growing in front of the trunk's base, so the tree sits in the ground.
+  function drawBaseGrass(g) {
+    const R = rng(91), blades = [];
+    for (let i = 0; i < 340; i++) {
+      const side = R() < 0.5 ? -1 : 1;
+      const x = TX + side * Math.pow(R(), 1.3) * 200;
+      const y = BASE_Y - 1 + Math.pow(R(), 1.2) * 26;
+      blades.push([x, y, R(), R(), R(), R()]);
+    }
+    blades.sort((a, b) => a[1] - b[1]);
+    for (const [x, y, r1, r2, r3, r4] of blades) {
+      const near = 1 - Math.min(1, Math.abs(x - TX) / 240);
+      const len = 6 + r1 * 11 + near * 7;
+      const w = 0.9 + r1 * 0.5;
+      const lean = (r2 - 0.5) * 0.9;
+      const shade = clamp(0.3 + r3 * 0.7 - 0.12);
+      g.fillStyle = hsl(72 + r4 * 34, 20 + r3 * 18, 20 + shade * 30, 0.95);
+      const tx = x + lean * len, ty = y - len;
+      g.beginPath();
+      g.moveTo(x - w / 2, y);
+      g.quadraticCurveTo(x - w / 4 + lean * len * 0.35, y - len * 0.6, tx, ty);
+      g.quadraticCurveTo(x + w / 4 + lean * len * 0.35, y - len * 0.6, x + w / 2, y);
+      g.fill();
+    }
+  }
+
   function drawWood(g, T) {
     const R = rng(31);
-    for (const [x0, y0, x1, y1, w0, w1] of T.roots) drawLimb(g, [x0, y0, x1, y1, w0, w1, 0, (x0 + x1) / 2, y0 + 2]);
+    for (const r of T.roots) drawRoot(g, r);
 
-    const L = T.trunk;
+    // The trunk reaches a little below the ground line; the grass in front hides the join.
+    const L = [[T.trunk[0][0], BASE_Y + 14, T.trunk[0][2]], ...T.trunk];
     g.beginPath();
     L.forEach(([x, y, w], i) => (i ? g.lineTo(x - w / 2, y) : g.moveTo(x - w / 2, y)));
     for (let i = L.length - 1; i >= 0; i--) g.lineTo(L[i][0] + L[i][2] / 2, L[i][1]);
@@ -404,6 +459,8 @@
     ao.addColorStop(1, "rgba(20,16,10,.45)");
     g.fillStyle = ao; g.fillRect(TX - 200, BASE_Y - 60, 400, 80);
     g.restore();
+    buryBase(g);
+    drawBaseGrass(g);
 
     [...T.branches].filter((b) => b[4] >= 16).sort((a, b) => b[4] - a[4]).forEach((b) => drawLimb(g, b));
   }
